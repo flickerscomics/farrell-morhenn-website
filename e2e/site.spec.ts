@@ -159,7 +159,7 @@ test("a press release shows its dateline, BBCode formatting, contact and boilerp
   await expect(body.locator("figure.bb-quote figcaption")).toHaveText("Grace Ashworth, Associate Attorney");
   await expect(body.locator("ul > li")).toHaveCount(3);
   await expect(page.locator(".pull-quote")).toContainText("Families going through a separation");
-  await expect(page.locator(".media-contact")).toContainText("press@farrellmorhenn.sa");
+  await expect(page.locator(".media-contact")).toContainText("press@farrellmorhennlaw.com");
   await expect(page.locator(".release-boilerplate")).toContainText("About Farrell-Morhenn");
   await expect(page.locator(".end-mark")).toHaveText("###");
   await body.getByRole("link", { name: "Senior Attorney Daniela Reyes" }).click();

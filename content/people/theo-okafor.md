@@ -19,7 +19,7 @@ practiceAreas:
 languages:
   - English
   - Yoruba
-email: t.okafor@farrellmorhenn.sa
+email: t.okafor@farrellmorhennlaw.com
 phone: ""
 joinedYear: 2022
 qualifications: J.D., Los Santos School of Law

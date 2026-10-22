@@ -19,7 +19,7 @@ practiceAreas:
 languages:
   - English
   - Spanish
-email: d.reyes@farrellmorhenn.sa
+email: d.reyes@farrellmorhennlaw.com
 phone: ""
 joinedYear: 2019
 qualifications: |-

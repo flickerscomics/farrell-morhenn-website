@@ -62,7 +62,7 @@ Leave a blank line between paragraphs. A single line break is kept as a line bre
 | `[h2]Heading[/h2]` `[h3]Subheading[/h3]` | Headings |
 | `[url=https://example.com]link text[/url]` | Link to another website |
 | `[url=/contact]contact page[/url]` | Link to a page on this site |
-| `[email]press@example.com[/email]` | Email link |
+| `[email]press@farrellmorhennlaw.com[/email]` | Email link |
 | `[quote=Jane Doe, Senior Attorney]Quoted words[/quote]` | Quotation with attribution |
 | `[list][*]First[*]Second[/list]` | Bulleted list (`[list=1]` numbers it, `[list=a]` letters it) |
 | `[center]…[/center]` `[right]…[/right]` | Alignment |

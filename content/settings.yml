@@ -4,7 +4,7 @@ tagline: Steady counsel for Los Santos.
 colorPrimary: "#15233b"
 colorAccent: "#a8864f"
 phone: 555-0147
-email: reception@farrellmorhenn.sa
+email: reception@farrellmorhennlaw.com
 addressLines:
   - Arcadius Business Center, Suite 2210
   - Pillbox Hill
@@ -42,7 +42,7 @@ officeHours:
     close: 14:00
 contactMethods:
   - Call the office on 555-0147
-  - Email reception@farrellmorhenn.sa
+  - Email reception@farrellmorhennlaw.com
   - Visit the office in person during opening hours
 consultationTypes:
   - Initial consultation
@@ -82,7 +82,7 @@ homeSections:
 press:
   contactName: Press Office
   contactTitle: Farrell-Morhenn
-  contactEmail: press@farrellmorhenn.sa
+  contactEmail: press@farrellmorhennlaw.com
   contactPhone: 555-0147
   defaultLocation: LOS SANTOS, San Andreas
   boilerplate: |-

@@ -18,7 +18,7 @@ practiceAreas:
   - consultation-and-document-drafting
 languages:
   - English
-email: g.ashworth@farrellmorhenn.sa
+email: g.ashworth@farrellmorhennlaw.com
 phone: ""
 joinedYear: 2023
 qualifications: J.D., University of San Andreas, Los Santos

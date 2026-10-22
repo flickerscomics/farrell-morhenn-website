@@ -32,9 +32,9 @@ Farrell-Morhenn is aware that a number of people have received emails asking the
 
 [h3]How to recognise a genuine message[/h3]
 [list=1]
-[*]Genuine emails from the firm only come from addresses ending in [b]@farrellmorhenn.sa[/b].
+[*]Genuine emails from the firm only come from addresses ending in [b]@farrellmorhennlaw.com[/b].
 [*]The firm never asks for payment to a new or changed bank account by email.
 [*]If in doubt, call the office on 555-0147 before acting on any request.
 [/list]
 
-Anyone who has received one of these emails should not reply or make any payment, and may forward it to [email]reception@farrellmorhenn.sa[/email].
+Anyone who has received one of these emails should not reply or make any payment, and may forward it to [email]reception@farrellmorhennlaw.com[/email].

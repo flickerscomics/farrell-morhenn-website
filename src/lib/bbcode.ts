@@ -160,7 +160,7 @@ export const BBCODE_HELP: { code: string; result: string }[] = [
   { code: "[b]bold[/b]  [i]italic[/i]  [u]underline[/u]  [s]strike[/s]", result: "Text styles" },
   { code: "[h2]Heading[/h2]  [h3]Subheading[/h3]", result: "Headings" },
   { code: "[url=https://example.com]link text[/url]  [url=/contact]a page on this site[/url]", result: "Links" },
-  { code: "[email]press@example.com[/email]", result: "Email link" },
+  { code: "[email]press@farrellmorhennlaw.com[/email]", result: "Email link" },
   { code: "[quote=Name, Title]Quoted words[/quote]", result: "Quotation" },
   { code: "[list][*]First[*]Second[/list]  [list=1]…[/list]", result: "Bulleted / numbered list" },
   { code: "[center]…[/center]  [right]…[/right]", result: "Alignment" },
