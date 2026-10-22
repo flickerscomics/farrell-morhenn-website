@@ -5,7 +5,7 @@ import { absoluteUrl, peopleInArea, practiceAreas } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Practice areas",
-  description: "The legal services Calder Whitmore offers to individuals and businesses in Los Santos (fictional, GTA World roleplay).",
+  description: "The legal services Farrell-Morhenn offers to individuals and businesses across Los Santos and Blaine County.",
   alternates: { canonical: absoluteUrl("/practice-areas/") },
 };
 

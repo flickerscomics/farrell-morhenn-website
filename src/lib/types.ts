@@ -1,5 +1,4 @@
-// Shapes of the site content. Everything under /content is fictional sample
-// material for the GTA World roleplay setting and can be edited freely.
+// Shapes of the site content loaded from /content.
 
 export type StaffRole =
   | "MANAGING_PARTNER"
@@ -18,6 +17,7 @@ export type StaffStatus = "ACTIVE" | "ON_LEAVE" | "INACTIVE" | "DEPARTED";
 
 export type Person = {
   slug: string;
+  order: number;
   fullName: string;
   title: string;
   role: StaffRole;
@@ -26,7 +26,7 @@ export type Person = {
   isLeadership?: boolean;
   isFeatured?: boolean;
   acceptsConsultations?: boolean;
-  /** Optional portrait path under /public, e.g. "/images/people/eleanor-calder.jpg". */
+  /** Optional portrait path under /public, e.g. "/images/people/portrait.jpg". */
   portrait?: string;
   shortBio: string;
   biography: string;
@@ -45,6 +45,7 @@ export type Person = {
 
 export type PracticeArea = {
   slug: string;
+  order: number;
   name: string;
   shortDescription: string;
   /** Markdown. */
@@ -75,6 +76,8 @@ export type Article = {
   isFeatured?: boolean;
   /** Practice area slugs. */
   practiceAreas: string[];
+  /** Filled in at build time from `author`. */
+  authorName?: string | null;
 };
 
 export type Faq = { category: string; question: string; answer: string; practiceArea?: string };
@@ -89,6 +92,7 @@ export type Vacancy = {
   responsibilities: string[];
   requirements: string[];
   status: "OPEN" | "CLOSED" | "DRAFT";
+  order: number;
   closesOn?: string;
 };
 
@@ -103,3 +107,41 @@ export type Page = {
   metaDescription: string;
   updatedOn: string;
 };
+
+export type DayHours = { closed: boolean; open: string; close: string };
+
+export type Settings = {
+  firmName: string;
+  shortName: string;
+  tagline: string;
+  colorPrimary: string;
+  colorAccent: string;
+  phone: string;
+  email: string;
+  addressLines: string[];
+  locationNote: string;
+  timezone: string;
+  /** Index 0 = Sunday … 6 = Saturday. */
+  officeHours: DayHours[];
+  contactMethods: string[];
+  consultationTypes: string[];
+  appointmentMinutes: number;
+  navigation: { label: string; href: string }[];
+  socialLinks: { label: string; href: string }[];
+  footerText: string;
+  heroEyebrow: string;
+  heroTitle: string;
+  heroText: string;
+  homeSections: {
+    showPracticeAreas: boolean;
+    showAttorneys: boolean;
+    showProcess: boolean;
+    showArticles: boolean;
+    showCareers: boolean;
+    showContact: boolean;
+  };
+  confidentialityNotice: string;
+};
+
+export type Milestone = { year: string; title: string; description: string };
+export type Category = { slug: string; name: string };

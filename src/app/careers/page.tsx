@@ -59,9 +59,6 @@ export default function CareersPage() {
       <section className="section-tight">
         <div className="container container-narrow">
           <HowToApply />
-          <p className="small muted" style={{ marginTop: "1rem" }}>
-            Positions are in-character roles within the GTA World roleplay community.
-          </p>
         </div>
       </section>
     </>

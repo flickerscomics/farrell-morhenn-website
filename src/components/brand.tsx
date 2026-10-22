@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export function BrandMark({ className = "brand-mark", initials = "CW" }: { className?: string; initials?: string }) {
+export function BrandMark({ className = "brand-mark", initials = "FM" }: { className?: string; initials?: string }) {
   return (
     <svg className={className} viewBox="0 0 48 48" aria-hidden="true" focusable="false">
       <rect x="0.5" y="0.5" width="47" height="47" fill="var(--navy)" />
@@ -23,7 +23,7 @@ export function BrandMark({ className = "brand-mark", initials = "CW" }: { class
 }
 
 function initialsOf(name: string) {
-  const words = name.replace(/\b(LLP|LLC|PC|P\.C\.|&|and)\b/gi, " ").split(/\s+/).filter(Boolean);
+  const words = name.replace(/\b(LLP|LLC|PC|P\.C\.|and)\b|&/gi, " ").split(/[\s-]+/).filter(Boolean);
   return words
     .slice(0, 2)
     .map((w) => w[0]!.toUpperCase())

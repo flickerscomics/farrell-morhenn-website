@@ -5,7 +5,7 @@ import { absoluteUrl, people, practiceAreas } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Our people",
-  description: "Attorneys and staff of Calder Whitmore LLP, a fictional Los Santos law firm in the GTA World roleplay community.",
+  description: "Attorneys and staff of Farrell-Morhenn, an independent law firm in Pillbox Hill, Los Santos.",
   alternates: { canonical: absoluteUrl("/people/") },
 };
 

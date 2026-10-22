@@ -49,8 +49,8 @@ export function ArticleView({ article }: { article: Article }) {
         )}
         <div className="notice">
           <p>
-            This article relates to the fictional GTA World roleplay setting. It is general information, not legal advice,
-            and does not apply to any real-world jurisdiction.
+            This article is general information, not legal advice. Every matter depends on its own facts. Please contact the
+            office if you would like advice about your situation.
           </p>
         </div>
       </footer>

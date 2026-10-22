@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { asset } from "@/lib/env";
-import { authorOf, type Article, type Person } from "@/lib/content";
+import type { Article, Person } from "@/lib/types";
 import { ARTICLE_TYPE_LABELS, STAFF_ROLE_LABELS } from "@/lib/labels";
 import { formatDate } from "@/lib/time";
 import { Portrait } from "./ui";
@@ -24,7 +24,6 @@ export function PersonCard({ person }: { person: Person }) {
 }
 
 export function ArticleCard({ article, image }: { article: Article; image?: string }) {
-  const author = authorOf(article);
   return (
     <Link href={`/news/${article.slug}`} className="article-card">
       {image && <img src={asset(image)} alt="" loading="lazy" />}
@@ -34,7 +33,7 @@ export function ArticleCard({ article, image }: { article: Article; image?: stri
       </div>
       <h3>{article.title}</h3>
       <p>{article.summary}</p>
-      {author && <span className="small muted">By {author.name}</span>}
+      {article.authorName && <span className="small muted">By {article.authorName}</span>}
     </Link>
   );
 }

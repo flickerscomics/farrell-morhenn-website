@@ -7,9 +7,6 @@ import { MainNav, MobileMenu } from "./nav";
 export function SiteHeader() {
   return (
     <>
-      <div className="rp-banner">
-        {site.firmName} is a fictional firm within the GTA World roleplay community. <Link href="/disclaimer">Read the disclaimer</Link>
-      </div>
       <div className="utility-bar">
         <div className="container">
           <div className="row">
@@ -101,7 +98,7 @@ export function SiteFooter() {
         <div className="footer-disclaimer">
           <p>{site.footerText}</p>
           <p className="row" style={{ gap: "1rem" }}>
-            <span>© {year} {site.firmName} (fictional)</span>
+            <span>© {year} {site.firmName}</span>
             <Link href="/privacy">Privacy</Link>
             <Link href="/terms">Terms</Link>
             <Link href="/disclaimer">Disclaimer</Link>

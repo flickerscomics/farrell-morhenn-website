@@ -94,7 +94,7 @@ export default async function PracticeAreaPage({ params }: { params: Promise<{ s
             <div className="card" style={{ background: "var(--navy)", color: "#dfe2e8", border: 0 }}>
               <h3 style={{ color: "white" }}>Discuss your matter</h3>
               <p className="small">
-                Call, email or visit the office in character with a short summary of what happened. A member of staff will
+                Call, email or visit the office with a short summary of what happened. A member of staff will
                 be in touch.
               </p>
               <Link href="/contact" className="btn btn-accent btn-block">
@@ -102,8 +102,7 @@ export default async function PracticeAreaPage({ params }: { params: Promise<{ s
               </Link>
             </div>
             <p className="small muted">
-              Information on this page describes the fictional legal framework of the GTA World roleplay community and is
-              not real-world legal advice.
+              The information on this page is general information and is not legal advice.
             </p>
           </aside>
         </div>

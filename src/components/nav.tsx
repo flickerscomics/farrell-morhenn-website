@@ -126,7 +126,7 @@ export function MobileMenu({
             Contact the office
           </Link>
           <p className="small muted" style={{ textAlign: "center", margin: 0 }}>
-            Office: {phone} (in character)
+            Office: {phone}
           </p>
         </div>
       </div>

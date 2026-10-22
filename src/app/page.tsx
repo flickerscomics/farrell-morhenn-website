@@ -32,7 +32,7 @@ export default function HomePage() {
               </Link>
             </div>
             <p className="hero-links">
-              Prefer to speak to someone? Call <strong style={{ color: "white" }}>{site.phone}</strong> in character.
+              Prefer to speak to someone? Call <strong style={{ color: "white" }}>{site.phone}</strong>.
             </p>
           </div>
           <div className="hero-art">
@@ -179,7 +179,7 @@ export default function HomePage() {
               {site.locationNote && <p className="muted" style={{ marginTop: "1rem" }}>{site.locationNote}</p>}
               <dl className="contact-block" style={{ marginTop: "1.5rem" }}>
                 <dt>Telephone</dt>
-                <dd>{site.phone} (in character)</dd>
+                <dd>{site.phone}</dd>
                 <dt>Email</dt>
                 <dd>
                   <a href={`mailto:${site.email}`}>{site.email}</a>

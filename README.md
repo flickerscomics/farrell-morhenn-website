@@ -1,90 +1,81 @@
-# Calder Whitmore LLP: GTA World roleplay law firm website
+# Farrell-Morhenn website
 
-The website of **Calder Whitmore LLP**, a *fictional* law firm in Los Santos, San Andreas, for the GTA World text-based roleplay community. It is a static site hosted free on **GitHub Pages**.
+The website of **Farrell-Morhenn**, a law firm in Pillbox Hill, Los Santos, for the GTA World roleplay community. It is written to read as a genuine in-character law firm website, with no out-of-character wording on any page. It is a static site hosted free on **GitHub Pages**.
 
-> Everything here is fictional. The firm, its people, qualifications, addresses and cases exist only in character. Nothing on this site is real-world legal advice.
+## Editing the website (no code needed)
 
-## What's on the site
+Content is edited with **[Pages CMS](https://pagescms.org)**, a free editor for websites stored on GitHub.
 
-- **Home:** introduction, featured practice areas, attorneys, how working with the firm works, latest articles, careers and office hours.
-- **About:** history, mission, values, client approach, leadership and milestones.
-- **Practice areas:** an overview of all 17 practice areas, each with its own page (matters handled, services, FAQs, team, related articles).
-- **People:** directory with search and role and practice-area filters, plus a profile page for each person.
-- **News & insights:** articles with search and category, type and tag filters.
-- **FAQ:** grouped by category, searchable.
-- **Careers:** open vacancies and how to apply in character.
-- **Contact:** office address, in-character phone and email, hours (Pacific Time), and how to request a consultation.
-- **Privacy, Terms, Roleplay disclaimer,** a 404 page, sitemap, robots.txt, favicon and social-sharing metadata.
+### First-time setup (once)
 
-### What a static site can't do
+1. Go to **https://app.pagescms.org** and choose **Sign in with GitHub**. Use the repository owner's account.
+2. When asked, **install the Pages CMS GitHub App** and give it access to this repository.
+3. Open this repository in Pages CMS. It reads the `.pages.yml` file and shows the editing menu.
 
-GitHub Pages only serves files: there is no server and no database. So the site has **no online forms, logins, admin dashboard or client portal**. Visitors contact the firm in character by in-game phone, email, forum private message or by visiting the office, as the Contact page explains. Search and filters run in the visitor's browser.
+### Day-to-day editing
 
-A full database-backed version (online enquiry and booking forms, admin dashboard, matter management and client portal) was built first and is preserved in this repository's history at commit `2fa7790`. It needs a Node.js host and PostgreSQL rather than GitHub Pages.
+The menu on the left has these sections:
 
-## Editing the content
-
-All content lives in plain TypeScript files in [`content/`](content/). Edit them directly on GitHub (pencil icon) or locally. Each push to `main` republishes the site automatically.
-
-| File | What it controls |
+| Section | What you can change |
 | --- | --- |
-| `content/site.ts` | Firm name, tagline, colours, phone, email, address, office hours, navigation, footer, homepage text and sections, contact methods, consultation types |
-| `content/practice-areas.ts` | Practice areas (set `published: false` to hide one) |
-| `content/people.ts` | Attorneys and staff. `status`: `ACTIVE`, `ON_LEAVE` (shown, cannot be booked), `INACTIVE` or `DEPARTED` (hidden). `published: false` also hides someone. |
-| `content/articles.ts` | News and articles (`draft: true` hides one; future `publishedOn` dates appear once the site is rebuilt after that date) |
-| `content/faqs.ts` | FAQs and their categories (add `practiceArea` to show a question on that practice area's page instead) |
-| `content/careers.ts` | Vacancies: `OPEN`, `CLOSED` or `DRAFT` (hidden) |
-| `content/pages.ts` | Text of the homepage introduction, About, Careers intro, Contact, Privacy, Terms and Disclaimer |
-| `content/milestones.ts` | History timeline on the About page |
+| **Firm settings** | Firm name, tagline, colours, phone, email, address, office hours, contact methods, consultation types, homepage title and text, which homepage sections appear, the main menu, footer notice |
+| **People** | Attorneys and staff: name, title, role, status, portrait, biography, practice areas, languages, contact details, qualifications. Add someone with **Add an entry**. |
+| **Practice areas** | Each practice area's description, matters handled, services, and whether it's shown or featured |
+| **News & articles** | Write, edit or schedule articles. Tick **Draft** to keep one hidden. |
+| **Vacancies** | Open (accepting applications), Closed (shown as closed) or Draft (hidden) |
+| **FAQs** | Questions, answers and categories |
+| **Website pages** | Homepage introduction and steps, About, Careers intro, Contact, Privacy, Terms, Legal disclaimer, history timeline, article categories |
 
-Article bodies, biographies and page text use **Markdown** (`## Heading`, `**bold**`, lists, `[link](/contact)`). Raw HTML is ignored.
+Press **Save** and Pages CMS saves the change to GitHub. The site republishes automatically about a minute later.
 
-**Portraits:** add an image to `public/images/people/` and set `portrait: "/images/people/name.jpg"` on the person. Without a portrait, a monogram is shown.
+**Good to know**
 
-The automated tests check content edits for broken references, such as a person linked to a practice area that doesn't exist.
+- **Web address fields** (on people, practice areas, articles and vacancies) are the page addresses. Use lowercase letters, numbers and hyphens, e.g. `jane-doe`. Changing one changes that page's link.
+- **Staff status:** *Active* and *On leave* people are shown (on-leave staff can't be booked). *Inactive* and *Departed* people are hidden, as is anyone with *Show on the website* unticked.
+- **Articles** appear on their publication date. One dated in the future appears after the next save made on or after that date.
+- **Portraits:** upload an image in the person's **Portrait** field. Without one, the person's initials are shown.
+- **Article categories:** the category dropdown on articles has a fixed list in `.pages.yml`. To add a category, add it under *Website pages → Article categories* **and** to that list.
+- **Safety net:** each save is checked before it's published. If something is wrong (for example an article linked to a practice area that doesn't exist), the update stops, the live site stays as it was, and the error appears in the repository's **Actions** tab.
+
+You can still edit the files in `content/` directly on GitHub if you prefer.
 
 ## Publishing on GitHub Pages
 
-1. In the repository on GitHub, go to **Settings → Pages → Build and deployment** and set **Source** to **GitHub Actions** (one-time setup).
-2. Push to `main`. The **Deploy to GitHub Pages** workflow (`.github/workflows/pages.yml`) lints, type-checks, tests, builds and publishes the site.
-3. The site is served at `https://<username>.github.io/<repository-name>/`.
+Publishing is automatic: every change to `main` runs the **Deploy to GitHub Pages** workflow, which checks, builds and publishes the site. Pages must be set to **Settings → Pages → Source: GitHub Actions** (already done).
 
-**Renaming the repository** needs no code changes. The workflow reads the address from GitHub's Pages settings on every build, so the next deploy uses the new name. Custom domains (Settings → Pages → Custom domain) work the same way.
+**Renaming the repository** needs no code changes. The address simply becomes `https://<owner>.github.io/<new-name>/`. Custom domains (Settings → Pages → Custom domain) work too.
 
-Pull requests run the **CI** workflow (lint, types, content tests and browser tests) without deploying.
+## What a static site can't do
 
-## Local development
+GitHub Pages only serves files, so the site has no online forms, logins, admin area or client portal. Visitors contact the firm by phone, email or in person, as the Contact page explains. A full database-backed version (online forms, admin dashboard, matter management, client portal) was built earlier and is preserved in this repository's history at commit `2fa7790`. It needs a Node.js host with PostgreSQL rather than GitHub Pages.
+
+## For developers
 
 Requires Node.js 20.9 or later.
 
 ```bash
 npm install
-npm run dev                 # http://localhost:3000 (live reload)
+npm run dev          # http://localhost:3000
 npm run lint
 npm run typecheck
-npm test                    # content integrity tests
-npm run test:e2e            # browser tests against a Pages-style build (first time: npx playwright install chromium)
-```
+npm test             # content checks, including a scan for out-of-character wording
+npm run test:e2e     # browser tests against a Pages-style build (first time: npx playwright install chromium)
 
-To preview exactly what GitHub Pages will serve:
-
-```bash
+# Preview exactly what GitHub Pages serves:
 PAGES_BASE_PATH=/built-different npm run build
-PAGES_BASE_PATH=/built-different npm run preview   # http://localhost:3000/built-different/
+PAGES_BASE_PATH=/built-different npm run preview
 ```
 
-## Project structure
-
 ```
-content/                 Site content (edit these)
-public/                  Static files copied as-is (images, .nojekyll)
-src/app/                 Pages (Next.js App Router, exported as static HTML)
-src/components/          Layout, cards, filters and other UI
-src/lib/                 Content access and visibility rules, labels, dates
-scripts/serve.mjs        Local server that mimics GitHub Pages
-tests/                   Content integrity tests (Vitest)
-e2e/                     Browser tests (Playwright)
-.github/workflows/       Pages deployment and pull-request CI
+content/              Editable content (YAML, and Markdown with a YAML header)
+.pages.yml            Pages CMS editing forms
+public/images/        Uploaded images
+src/lib/load.ts       Reads and validates /content at build time
+src/lib/content.ts    Visibility rules and cross-reference checks
+src/app/              Pages (Next.js static export)
+src/components/       UI components
+tests/, e2e/          Vitest and Playwright tests
+.github/workflows/    Deployment and pull-request checks
 ```
 
-Built with Next.js 15 (static export), React 19 and TypeScript. Styling is a hand-written CSS design system and fonts are self-hosted. The site uses no analytics, cookies or tracking.
+Built with Next.js 15 (static export), React 19 and TypeScript. The site uses no analytics, cookies or tracking.
