@@ -1,0 +1,53 @@
+{
+  "name": "calder-whitmore-law",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Full-stack website and practice management system for a fictional GTA World roleplay law firm.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "prisma db seed",
+    "db:reset": "prisma migrate reset",
+    "admin:create": "tsx scripts/create-admin.ts",
+    "admin:reset-password": "tsx scripts/reset-password.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "engines": {
+    "node": ">=20.9"
+  },
+  "dependencies": {
+    "@fontsource-variable/public-sans": "^5.3.0",
+    "@fontsource-variable/source-serif-4": "^5.3.1",
+    "@prisma/client": "^6.19.3",
+    "next": "^15.5.28",
+    "react": "^19.2.9",
+    "react-dom": "^19.2.9",
+    "react-markdown": "^10.1.0",
+    "server-only": "^0.0.1",
+    "sharp": "^0.35.5",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.7",
+    "@playwright/test": "^1.56.1",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^15.5.28",
+    "prisma": "^6.19.3",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}
