@@ -1,7 +1,6 @@
 "use client";
 
-import type { Person } from "@/lib/content";
-import { STAFF_ROLE_LABELS } from "@/lib/labels";
+import type { Person } from "@/lib/types";
 import { PersonCard } from "./cards";
 import { EmptyState } from "./ui";
 import { matches, useUrlFilters } from "./use-url-filters";
@@ -84,9 +83,6 @@ export function PeopleDirectory({ people, areas }: { people: Person[]; areas: { 
           );
         })
       )}
-      <p className="small muted">
-        Roles: {Object.values(STAFF_ROLE_LABELS).join(", ")}. Everyone listed is a fictional roleplay character.
-      </p>
     </>
   );
 }

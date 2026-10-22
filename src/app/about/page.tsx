@@ -71,7 +71,6 @@ export default function AboutPage() {
                 </li>
               ))}
             </ol>
-            <p className="small muted">Milestones describe the firm&apos;s fictional in-character history.</p>
           </div>
         </section>
       )}

@@ -26,9 +26,9 @@ export default function ContactPage() {
                     {site.addressLines.map((l) => <div key={l}>{l}</div>)}
                   </address>
                 </dd>
-                <dt>Telephone (in character)</dt>
+                <dt>Telephone</dt>
                 <dd>{site.phone}</dd>
-                <dt>Email (in character)</dt>
+                <dt>Email</dt>
                 <dd><a href={`mailto:${site.email}`}>{site.email}</a></dd>
               </dl>
               {site.locationNote && <p className="small muted" style={{ margin: 0 }}>{site.locationNote}</p>}
@@ -41,9 +41,9 @@ export default function ContactPage() {
           </aside>
           <div className="stack">
             <h2>How to reach us</h2>
-            <ContactOptions methods={site.contactMethods} intro="Get in touch in character in any of these ways:" />
+            <ContactOptions methods={site.contactMethods} intro="Get in touch in any of these ways:" />
             <div className="notice notice-warn" role="note">
-              <p><strong>Roleplay notice.</strong> {site.roleplayNotice}</p>
+              <p><strong>Confidentiality.</strong> {site.confidentialityNotice}</p>
             </div>
             <h2 style={{ marginTop: "1.5rem" }}>Consultations</h2>
             <p>

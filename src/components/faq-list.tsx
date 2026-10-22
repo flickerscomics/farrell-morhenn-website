@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { Faq } from "../../content/types";
+import type { Faq } from "@/lib/types";
 import { EmptyState, Markdown } from "./ui";
 import { matches, useUrlFilters } from "./use-url-filters";
 

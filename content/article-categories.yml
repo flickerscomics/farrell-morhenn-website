@@ -1,0 +1,19 @@
+categories:
+  - slug: firm-news
+    name: Firm news
+    description: Announcements from Farrell-Morhenn.
+  - slug: know-your-rights
+    name: Know your rights
+    description: Plain-language guides to common legal situations in Los Santos.
+  - slug: business
+    name: Business
+    description: Legal topics for Los Santos businesses.
+  - slug: careers
+    name: Careers
+    description: Recruitment news and opportunities.
+  - slug: community
+    name: Community
+    description: Clinics, events and community legal information.
+  - slug: case-notes
+    name: Case notes
+    description: Anonymised updates on concluded public matters.

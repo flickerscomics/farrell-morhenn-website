@@ -1,19 +1,59 @@
 // Read-only access to the site content in /content, with the visibility
 // rules applied in one place. Pages only ever use these helpers.
 
-import { articleCategories, articles as allArticles } from "../../content/articles";
-import { faqCategories, faqs as allFaqs } from "../../content/faqs";
-import { milestones } from "../../content/milestones";
-import { pages } from "../../content/pages";
-import { people as allPeople } from "../../content/people";
-import { practiceAreas as allAreas } from "../../content/practice-areas";
-import { site } from "../../content/site";
-import { vacancies as allVacancies } from "../../content/careers";
-import type { Article, Person, PracticeArea } from "../../content/types";
+import {
+  ContentError,
+  loadArticleCategories,
+  loadArticles,
+  loadFaqs,
+  loadMilestones,
+  loadPages,
+  loadPeople,
+  loadPracticeAreas,
+  loadSettings,
+  loadVacancies,
+} from "./load";
+import type { Article, Person, PracticeArea } from "./types";
 import { SITE_URL } from "./env";
 
-export { articleCategories, faqCategories, milestones, site };
 export type { Article, Person, PracticeArea };
+
+// Loaded once per build.
+export const site = loadSettings();
+const allAreas = loadPracticeAreas().sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
+const allPeople = loadPeople().sort((a, b) => a.order - b.order || a.fullName.localeCompare(b.fullName));
+const allArticles = loadArticles();
+const allVacancies = loadVacancies().sort((a, b) => a.order - b.order);
+const pages = loadPages();
+const faqData = loadFaqs();
+export const faqCategories = faqData.categories;
+const allFaqs = faqData.questions;
+export const articleCategories = loadArticleCategories();
+export const milestones = loadMilestones();
+
+// Cross-references are checked here so a typo fails the build with a clear message.
+{
+  const areas = new Set(allAreas.map((a) => a.slug));
+  const peopleSlugs = new Set(allPeople.map((p) => p.slug));
+  const unique = (label: string, slugs: string[]) => {
+    const dup = slugs.find((s, i) => slugs.indexOf(s) !== i);
+    if (dup) throw new ContentError(`Two ${label} share the slug "${dup}"`);
+  };
+  unique("practice areas", allAreas.map((a) => a.slug));
+  unique("people", allPeople.map((p) => p.slug));
+  unique("articles", allArticles.map((a) => a.slug));
+  unique("vacancies", allVacancies.map((v) => v.slug));
+  for (const p of allPeople) for (const a of p.practiceAreas) if (!areas.has(a)) throw new ContentError(`${p.fullName}: unknown practice area "${a}"`);
+  for (const a of allArticles) {
+    for (const area of a.practiceAreas) if (!areas.has(area)) throw new ContentError(`Article "${a.title}": unknown practice area "${area}"`);
+    if (a.author && !peopleSlugs.has(a.author)) throw new ContentError(`Article "${a.title}": unknown author "${a.author}"`);
+    if (!articleCategories.some((c) => c.slug === a.category)) throw new ContentError(`Article "${a.title}": unknown category "${a.category}"`);
+  }
+  for (const f of allFaqs) {
+    if (!faqCategories.some((c) => c.slug === f.category)) throw new ContentError(`FAQ "${f.question}": unknown category "${f.category}"`);
+    if (f.practiceArea && !areas.has(f.practiceArea)) throw new ContentError(`FAQ "${f.question}": unknown practice area "${f.practiceArea}"`);
+  }
+}
 
 export function absoluteUrl(path: string) {
   return `${SITE_URL}${path}`;
@@ -60,7 +100,8 @@ export function articles(now = new Date()): Article[] {
   const today = now.toISOString().slice(0, 10);
   return allArticles
     .filter((a) => !a.draft && a.publishedOn <= today)
-    .sort((a, b) => b.publishedOn.localeCompare(a.publishedOn));
+    .sort((a, b) => b.publishedOn.localeCompare(a.publishedOn))
+    .map((a) => ({ ...a, authorName: authorOf(a)?.name ?? null }));
 }
 
 export function article(slug: string) {

@@ -2,11 +2,11 @@ import { expect, test } from "@playwright/test";
 
 // Paths are relative to the base URL (the GitHub Pages sub-path).
 
-test("homepage shows the firm, a contact route and the roleplay disclaimer", async ({ page }) => {
+test("homepage shows the firm and a contact route", async ({ page }) => {
   await page.goto("./");
-  await expect(page).toHaveTitle(/Calder Whitmore LLP/);
+  await expect(page).toHaveTitle(/Farrell-Morhenn/);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  await expect(page.getByText(/fictional firm within the GTA World roleplay community/)).toBeVisible();
+  await expect(page.locator(".brand-mark text").first()).toHaveText("FM");
   await page.getByRole("link", { name: "Contact the office" }).first().click();
   await expect(page).toHaveURL(/\/built-different\/contact\/$/);
   await expect(page.getByRole("heading", { name: "How to reach us" })).toBeVisible();
@@ -20,7 +20,7 @@ test("main navigation reaches every section under the base path", async ({ page 
     ["Practice Areas", /How we can help/],
     ["People", /Attorneys and staff/],
     ["News & Insights", /Announcements and legal articles/],
-    ["Careers", /Careers at Calder Whitmore/],
+    ["Careers", /Careers at Farrell-Morhenn/],
     ["Contact", /Contact the office/],
   ] as const) {
     await nav.getByRole("link", { name: label }).click();
@@ -49,12 +49,13 @@ test("people directory filters in the browser and keeps the filter in the URL", 
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Daniela Reyes");
 
   await page.goto("people/?role=partners");
-  await expect(page.getByRole("link", { name: /Marcus Whitmore/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Marty Farrell/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Gideon Morhenn/ })).toBeVisible();
   await expect(page.getByRole("link", { name: /Theo Okafor/ })).toHaveCount(0);
 });
 
 test("profiles explain how to book, except for staff on leave", async ({ page }) => {
-  await page.goto("people/eleanor-calder/");
+  await page.goto("people/daniela-reyes/");
   await expect(page.getByRole("heading", { name: "Arrange a consultation" })).toBeVisible();
   await page.goto("people/samuel-brandt/");
   await expect(page.locator(".notice-warn", { hasText: "currently on leave" })).toBeVisible();
@@ -78,8 +79,8 @@ test("FAQ filters by category and keyword", async ({ page }) => {
   await page.getByRole("navigation", { name: "FAQ categories" }).getByRole("link", { name: "Appointments" }).click();
   await expect(page.getByText("What time zone are appointment times in?")).toBeVisible();
   await expect(page.getByText("How do I apply to work at the firm?")).toHaveCount(0);
-  await page.goto("faq/?q=fictional");
-  await expect(page.getByText("Is Calder Whitmore a real law firm?")).toBeVisible();
+  await page.goto("faq/?q=charge");
+  await expect(page.getByText("Is there a charge for an initial consultation?")).toBeVisible();
 });
 
 test("careers show application instructions; closed vacancies say so", async ({ page }) => {
@@ -102,10 +103,25 @@ test("missing pages, drafts and hidden profiles return the 404 page", async ({ p
 });
 
 test("no page links to features that do not exist on the static site", async ({ page }) => {
-  for (const path of ["./", "contact/", "people/eleanor-calder/", "careers/paralegal/", "practice-areas/family-law/"]) {
+  for (const path of ["./", "contact/", "people/marty-farrell/", "careers/paralegal/", "practice-areas/family-law/"]) {
     await page.goto(path);
     const hrefs = await page.locator("a[href]").evaluateAll((as) => as.map((a) => a.getAttribute("href")!));
     for (const h of hrefs) expect(h, `${path} links to ${h}`).not.toMatch(/\/(admin|portal|enquiry|consultation)(\/|$)/);
     expect(await page.locator("form[method=post], input[type=file]").count()).toBe(0);
+  }
+});
+
+test("pages read like a real firm's website, with no out-of-character wording", async ({ page }) => {
+  const banned = /in[- ]character|out[- ]of[- ]character|\bOOC\b|roleplay|fictional|GTA|real[- ]world|Calder|Whitmore/i;
+  for (const path of [
+    "./", "about/", "practice-areas/", "practice-areas/immigration-and-residency/", "people/", "people/marty-farrell/",
+    "people/gideon-morhenn/", "people/daniela-reyes/", "news/", "news/traffic-stops-in-los-santos-what-to-expect/",
+    "faq/", "careers/", "careers/paralegal/", "contact/", "privacy/", "terms/", "disclaimer/",
+  ]) {
+    await page.goto(path);
+    const text = await page.locator("body").innerText();
+    expect(text.match(banned)?.[0], path).toBeUndefined();
+    const title = await page.title();
+    expect(title.match(banned)?.[0], `${path} title`).toBeUndefined();
   }
 });

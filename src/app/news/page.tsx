@@ -5,7 +5,7 @@ import { absoluteUrl, articleCategories, articles } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "News & insights",
-  description: "Firm announcements, legal articles and community information from Calder Whitmore (fictional, GTA World roleplay).",
+  description: "Firm announcements, legal articles and community information from Farrell-Morhenn.",
   alternates: { canonical: absoluteUrl("/news/") },
 };
 
@@ -15,7 +15,7 @@ export default function NewsPage() {
       <PageHero
         eyebrow="News & insights"
         title="Announcements and legal articles"
-        lead="Firm news, plain-language guides and community legal information. Articles describe the fictional GTA World legal framework and are not real-world legal advice."
+        lead="Firm news, plain-language guides and community legal information. Articles are general information, not legal advice."
         crumbs={[{ label: "News & insights" }]}
       />
       <section className="section-tight">

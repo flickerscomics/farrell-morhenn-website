@@ -53,11 +53,11 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
                 <p className="small" style={{ margin: 0 }}>
                   {p.email ? (
                     <>
-                      Email <a href={`mailto:${p.email}`}>{p.email}</a> or call reception on {site.phone} in character and ask
+                      Email <a href={`mailto:${p.email}`}>{p.email}</a> or call reception on {site.phone} and ask
                       for {firstName}.
                     </>
                   ) : (
-                    <>Call reception on {site.phone} in character and ask for {firstName}.</>
+                    <>Call reception on {site.phone} and ask for {firstName}.</>
                   )}
                 </p>
               </div>
@@ -89,13 +89,13 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
               )}
               {p.email && (
                 <div>
-                  <dt>Email (in character)</dt>
+                  <dt>Email</dt>
                   <dd><a href={`mailto:${p.email}`}>{p.email}</a></dd>
                 </div>
               )}
               {p.phone && (
                 <div>
-                  <dt>Direct line (in character)</dt>
+                  <dt>Direct line</dt>
                   <dd>{p.phone}</dd>
                 </div>
               )}
@@ -143,10 +143,6 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
                 <Markdown>{p.achievements}</Markdown>
               </>
             )}
-            <p className="small muted" style={{ marginTop: "2rem" }}>
-              Qualifications, admissions and matters described on this page are established in character within the GTA
-              World roleplay community.
-            </p>
           </div>
         </div>
       </section>

@@ -1,4 +1,4 @@
-import type { DayHours } from "../../content/site";
+import type { DayHours } from "./types";
 
 export const WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 

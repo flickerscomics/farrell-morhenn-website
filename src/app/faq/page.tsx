@@ -6,7 +6,7 @@ import { absoluteUrl, faqCategories, generalFaqs } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Frequently asked questions",
-  description: "Answers about consultations, contacting the firm, appointments and careers at Calder Whitmore (fictional, GTA World roleplay).",
+  description: "Answers about consultations, contacting the firm, appointments and careers at Farrell-Morhenn.",
   alternates: { canonical: absoluteUrl("/faq/") },
 };
 

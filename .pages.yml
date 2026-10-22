@@ -1,0 +1,824 @@
+# Pages CMS configuration (https://pagescms.org). Defines the editing forms
+# for the files in /content. Saving in Pages CMS commits to the repository and
+# the "Deploy to GitHub Pages" workflow republishes the site.
+
+media:
+  input: public/images
+  output: /images
+
+content:
+  # ─── Firm settings ─────────────────────────────────────────────────────────
+  - name: settings
+    label: Firm settings
+    type: file
+    path: content/settings.yml
+    format: yaml
+    fields:
+      - name: firmName
+        label: Firm name
+        type: string
+        required: true
+      - name: shortName
+        label: Short name (shown in the header)
+        type: string
+      - name: tagline
+        label: Tagline
+        type: string
+      - name: colorPrimary
+        label: Main colour (hex, e.g. #15233b)
+        type: string
+        required: true
+      - name: colorAccent
+        label: Accent colour (hex, e.g. #a8864f)
+        type: string
+        required: true
+      - name: phone
+        label: Telephone
+        type: string
+      - name: email
+        label: Email
+        type: string
+      - name: addressLines
+        label: Office address (one line per entry)
+        type: string
+        list: true
+      - name: locationNote
+        label: Directions / location note
+        type: text
+      - name: timezone
+        label: Time zone
+        type: select
+        options:
+          values: [America/Los_Angeles, America/Denver, America/Chicago, America/New_York, UTC]
+      - name: officeHours
+        label: Office hours (Sunday first; times like 09:00)
+        type: object
+        list:
+          min: 7
+          max: 7
+          collapsible:
+            collapsed: true
+            summary: "{day}"
+        fields:
+          - name: day
+            label: Day
+            type: string
+            readonly: true
+          - name: closed
+            label: Closed all day
+            type: boolean
+          - name: open
+            label: Opens
+            type: string
+          - name: close
+            label: Closes
+            type: string
+      - name: contactMethods
+        label: Ways to contact the firm (Contact page)
+        type: string
+        list: true
+      - name: consultationTypes
+        label: Consultation types (Contact page)
+        type: string
+        list: true
+      - name: appointmentMinutes
+        label: Typical consultation length (minutes)
+        type: number
+      - name: confidentialityNotice
+        label: Confidentiality notice (Contact page)
+        type: text
+      - name: heroEyebrow
+        label: Homepage – small heading above the title
+        type: string
+      - name: heroTitle
+        label: Homepage – main title
+        type: string
+        required: true
+      - name: heroText
+        label: Homepage – introduction
+        type: text
+      - name: homeSections
+        label: Homepage sections to show
+        type: object
+        fields:
+          - name: showPracticeAreas
+            label: Practice areas
+            type: boolean
+          - name: showAttorneys
+            label: Featured attorneys
+            type: boolean
+          - name: showProcess
+            label: How-it-works steps
+            type: boolean
+          - name: showArticles
+            label: Latest articles
+            type: boolean
+          - name: showCareers
+            label: Careers band
+            type: boolean
+          - name: showContact
+            label: Office & hours
+            type: boolean
+      - name: navigation
+        label: Main menu
+        type: object
+        list: true
+        fields:
+          - name: label
+            label: Label
+            type: string
+          - name: href
+            label: Link (e.g. /about)
+            type: string
+      - name: socialLinks
+        label: Social links (footer)
+        type: object
+        list: true
+        fields:
+          - name: label
+            label: Label
+            type: string
+          - name: href
+            label: Full URL
+            type: string
+      - name: footerText
+        label: Footer notice
+        type: text
+
+  # ─── People ────────────────────────────────────────────────────────────────
+  - name: people
+    label: People
+    type: collection
+    path: content/people
+    format: yaml-frontmatter
+    view:
+      primary: fullName
+    fields:
+      - name: fullName
+        label: Full name
+        type: string
+        required: true
+      - name: slug
+        label: Web address (lowercase-with-hyphens, e.g. jane-doe)
+        type: string
+        required: true
+      - name: title
+        label: Job title
+        type: string
+        required: true
+      - name: role
+        label: Role (used for directory groups)
+        type: select
+        options:
+          values:
+            - { name: MANAGING_PARTNER, label: Managing Partner }
+            - { name: PARTNER, label: Partner }
+            - { name: SENIOR_ATTORNEY, label: Senior Attorney }
+            - { name: ASSOCIATE_ATTORNEY, label: Associate Attorney }
+            - { name: PARALEGAL, label: Paralegal }
+            - { name: LEGAL_CLERK, label: Legal Clerk }
+            - { name: INVESTIGATOR, label: Investigator }
+            - { name: OFFICE_MANAGER, label: Office Manager }
+            - { name: RECEPTIONIST, label: Receptionist }
+            - { name: ADMINISTRATIVE, label: Administrative Staff }
+      - name: status
+        label: Employment status
+        type: select
+        options:
+          values:
+            - { name: ACTIVE, label: Active }
+            - { name: ON_LEAVE, label: On leave (shown, cannot be booked) }
+            - { name: INACTIVE, label: Inactive (hidden) }
+            - { name: DEPARTED, label: Departed (hidden) }
+      - name: published
+        label: Show on the website
+        type: boolean
+        default: true
+      - name: order
+        label: Order in the directory (lower first)
+        type: number
+      - name: isLeadership
+        label: Show under Leadership on the About page
+        type: boolean
+      - name: isFeatured
+        label: Feature on the homepage
+        type: boolean
+      - name: acceptsConsultations
+        label: Takes consultations
+        type: boolean
+      - name: portrait
+        label: Portrait
+        type: image
+        options:
+          path: public/images/people
+      - name: shortBio
+        label: Short biography (directory cards)
+        type: text
+      - name: practiceAreas
+        label: Practice areas
+        type: reference
+        options:
+          collection: practice-areas
+          multiple: true
+          search: name
+          value: "{fields.slug}"
+          label: "{fields.name}"
+      - name: languages
+        label: Languages
+        type: string
+        list: true
+      - name: email
+        label: Email
+        type: string
+      - name: phone
+        label: Direct line
+        type: string
+      - name: joinedYear
+        label: Year joined the firm
+        type: number
+      - name: qualifications
+        label: Qualifications
+        type: text
+      - name: barAdmissions
+        label: Bar admissions
+        type: text
+      - name: background
+        label: Professional background
+        type: text
+      - name: notableCases
+        label: Notable matters
+        type: text
+      - name: achievements
+        label: Recognition and activities
+        type: text
+      - name: body
+        label: Full biography
+        type: rich-text
+        options:
+          format: markdown
+          media: false
+
+  # ─── Practice areas ────────────────────────────────────────────────────────
+  - name: practice-areas
+    label: Practice areas
+    type: collection
+    path: content/practice-areas
+    format: yaml-frontmatter
+    view:
+      primary: name
+    fields:
+      - name: name
+        label: Name
+        type: string
+        required: true
+      - name: slug
+        label: Web address (lowercase-with-hyphens)
+        type: string
+        required: true
+      - name: order
+        label: Order (lower first)
+        type: number
+      - name: shortDescription
+        label: Short description
+        type: text
+        required: true
+      - name: matterTypes
+        label: Matters handled
+        type: string
+        list: true
+      - name: services
+        label: Services offered
+        type: string
+        list: true
+      - name: isFeatured
+        label: Feature on the homepage
+        type: boolean
+      - name: published
+        label: Show on the website
+        type: boolean
+        default: true
+      - name: body
+        label: Overview
+        type: rich-text
+        options:
+          format: markdown
+          media: false
+
+  # ─── News & articles ───────────────────────────────────────────────────────
+  - name: articles
+    label: News & articles
+    type: collection
+    path: content/articles
+    format: yaml-frontmatter
+    view:
+      primary: title
+      sort: publishedOn
+      order: desc
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+      - name: slug
+        label: Web address (lowercase-with-hyphens)
+        type: string
+        required: true
+      - name: summary
+        label: Summary
+        type: text
+        required: true
+      - name: publishedOn
+        label: Publication date
+        type: date
+        options:
+          format: yyyy-MM-dd
+      - name: draft
+        label: Draft (hidden from the website)
+        type: boolean
+      - name: type
+        label: Type
+        type: select
+        options:
+          values:
+            - { name: ANNOUNCEMENT, label: Firm announcement }
+            - { name: LEGAL_ARTICLE, label: Legal article }
+            - { name: RECRUITMENT, label: Recruitment }
+            - { name: COMMUNITY, label: Community information }
+            - { name: CASE_ANNOUNCEMENT, label: Case announcement }
+      - name: category
+        label: Category
+        type: select
+        options:
+          values:
+            - { name: firm-news, label: Firm news }
+            - { name: know-your-rights, label: Know your rights }
+            - { name: business, label: Business }
+            - { name: careers, label: Careers }
+            - { name: community, label: Community }
+            - { name: case-notes, label: Case notes }
+      - name: author
+        label: Author
+        type: reference
+        options:
+          collection: people
+          search: fullName
+          value: "{fields.slug}"
+          label: "{fields.fullName}"
+      - name: tags
+        label: Tags
+        type: string
+        list: true
+      - name: practiceAreas
+        label: Related practice areas
+        type: reference
+        options:
+          collection: practice-areas
+          multiple: true
+          search: name
+          value: "{fields.slug}"
+          label: "{fields.name}"
+      - name: isFeatured
+        label: Featured
+        type: boolean
+      - name: body
+        label: Article
+        type: rich-text
+        options:
+          format: markdown
+          media: false
+
+  # ─── Careers ───────────────────────────────────────────────────────────────
+  - name: careers
+    label: Vacancies
+    type: collection
+    path: content/careers
+    format: yaml-frontmatter
+    view:
+      primary: title
+    fields:
+      - name: title
+        label: Job title
+        type: string
+        required: true
+      - name: slug
+        label: Web address (lowercase-with-hyphens)
+        type: string
+        required: true
+      - name: status
+        label: Status
+        type: select
+        options:
+          values:
+            - { name: OPEN, label: Open }
+            - { name: CLOSED, label: Closed (shown as closed) }
+            - { name: DRAFT, label: Draft (hidden) }
+      - name: department
+        label: Department
+        type: string
+      - name: employmentType
+        label: Hours (e.g. Full-time)
+        type: string
+      - name: summary
+        label: Summary
+        type: text
+        required: true
+      - name: closesOn
+        label: Applications close (optional)
+        type: date
+        default: ""
+        options:
+          format: yyyy-MM-dd
+      - name: order
+        label: Order (lower first)
+        type: number
+      - name: responsibilities
+        label: Responsibilities
+        type: string
+        list: true
+      - name: requirements
+        label: Requirements
+        type: string
+        list: true
+      - name: body
+        label: Description
+        type: rich-text
+        options:
+          format: markdown
+          media: false
+
+  # ─── FAQs ──────────────────────────────────────────────────────────────────
+  - name: faqs
+    label: FAQs
+    type: file
+    path: content/faqs.yml
+    format: yaml
+    fields:
+      - name: categories
+        label: Categories
+        type: object
+        list: true
+        fields:
+          - name: slug
+            label: Category code (lowercase, used below)
+            type: string
+          - name: name
+            label: Category name
+            type: string
+      - name: questions
+        label: Questions
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{question}"
+        fields:
+          - name: category
+            label: Category code (must match one above)
+            type: string
+          - name: question
+            label: Question
+            type: string
+          - name: answer
+            label: Answer
+            type: text
+          - name: practiceArea
+            label: Show on a practice area page instead (optional)
+            type: reference
+            options:
+              collection: practice-areas
+              search: name
+              value: "{fields.slug}"
+              label: "{fields.name}"
+
+  # ─── Website pages ─────────────────────────────────────────────────────────
+  - name: pages
+    label: Website pages
+    type: group
+    items:
+      - name: page-home
+        label: Homepage (approach & steps)
+        type: file
+        path: content/pages/home.md
+        format: yaml-frontmatter
+        fields:
+          - name: title
+            label: Title
+            type: string
+            required: true
+          - name: summary
+            label: Summary / introduction
+            type: text
+          - name: metaDescription
+            label: Search engine description
+            type: text
+          - name: updatedOn
+            label: Last updated
+            type: date
+            options:
+              format: yyyy-MM-dd
+          - name: sections
+            label: Sections
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{heading}"
+            fields:
+              - name: heading
+                label: Heading
+                type: string
+              - name: body
+                label: Text (Markdown)
+                type: text
+          - name: body
+            label: Main text
+            type: rich-text
+            options:
+              format: markdown
+              media: false
+      - name: page-about
+        label: About
+        type: file
+        path: content/pages/about.md
+        format: yaml-frontmatter
+        fields:
+          - name: title
+            label: Title
+            type: string
+            required: true
+          - name: summary
+            label: Summary / introduction
+            type: text
+          - name: metaDescription
+            label: Search engine description
+            type: text
+          - name: updatedOn
+            label: Last updated
+            type: date
+            options:
+              format: yyyy-MM-dd
+          - name: sections
+            label: Sections
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{heading}"
+            fields:
+              - name: heading
+                label: Heading
+                type: string
+              - name: body
+                label: Text (Markdown)
+                type: text
+          - name: body
+            label: Main text
+            type: rich-text
+            options:
+              format: markdown
+              media: false
+      - name: page-careers
+        label: Careers introduction
+        type: file
+        path: content/pages/careers.md
+        format: yaml-frontmatter
+        fields:
+          - name: title
+            label: Title
+            type: string
+            required: true
+          - name: summary
+            label: Summary / introduction
+            type: text
+          - name: metaDescription
+            label: Search engine description
+            type: text
+          - name: updatedOn
+            label: Last updated
+            type: date
+            options:
+              format: yyyy-MM-dd
+          - name: sections
+            label: Sections
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{heading}"
+            fields:
+              - name: heading
+                label: Heading
+                type: string
+              - name: body
+                label: Text (Markdown)
+                type: text
+          - name: body
+            label: Main text
+            type: rich-text
+            options:
+              format: markdown
+              media: false
+      - name: page-contact
+        label: Contact
+        type: file
+        path: content/pages/contact.md
+        format: yaml-frontmatter
+        fields:
+          - name: title
+            label: Title
+            type: string
+            required: true
+          - name: summary
+            label: Summary / introduction
+            type: text
+          - name: metaDescription
+            label: Search engine description
+            type: text
+          - name: updatedOn
+            label: Last updated
+            type: date
+            options:
+              format: yyyy-MM-dd
+          - name: sections
+            label: Sections
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{heading}"
+            fields:
+              - name: heading
+                label: Heading
+                type: string
+              - name: body
+                label: Text (Markdown)
+                type: text
+          - name: body
+            label: Main text
+            type: rich-text
+            options:
+              format: markdown
+              media: false
+      - name: page-privacy
+        label: Privacy notice
+        type: file
+        path: content/pages/privacy.md
+        format: yaml-frontmatter
+        fields:
+          - name: title
+            label: Title
+            type: string
+            required: true
+          - name: summary
+            label: Summary / introduction
+            type: text
+          - name: metaDescription
+            label: Search engine description
+            type: text
+          - name: updatedOn
+            label: Last updated
+            type: date
+            options:
+              format: yyyy-MM-dd
+          - name: sections
+            label: Sections
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{heading}"
+            fields:
+              - name: heading
+                label: Heading
+                type: string
+              - name: body
+                label: Text (Markdown)
+                type: text
+          - name: body
+            label: Main text
+            type: rich-text
+            options:
+              format: markdown
+              media: false
+      - name: page-terms
+        label: Terms of use
+        type: file
+        path: content/pages/terms.md
+        format: yaml-frontmatter
+        fields:
+          - name: title
+            label: Title
+            type: string
+            required: true
+          - name: summary
+            label: Summary / introduction
+            type: text
+          - name: metaDescription
+            label: Search engine description
+            type: text
+          - name: updatedOn
+            label: Last updated
+            type: date
+            options:
+              format: yyyy-MM-dd
+          - name: sections
+            label: Sections
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{heading}"
+            fields:
+              - name: heading
+                label: Heading
+                type: string
+              - name: body
+                label: Text (Markdown)
+                type: text
+          - name: body
+            label: Main text
+            type: rich-text
+            options:
+              format: markdown
+              media: false
+      - name: page-disclaimer
+        label: Legal disclaimer
+        type: file
+        path: content/pages/disclaimer.md
+        format: yaml-frontmatter
+        fields:
+          - name: title
+            label: Title
+            type: string
+            required: true
+          - name: summary
+            label: Summary / introduction
+            type: text
+          - name: metaDescription
+            label: Search engine description
+            type: text
+          - name: updatedOn
+            label: Last updated
+            type: date
+            options:
+              format: yyyy-MM-dd
+          - name: sections
+            label: Sections
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{heading}"
+            fields:
+              - name: heading
+                label: Heading
+                type: string
+              - name: body
+                label: Text (Markdown)
+                type: text
+          - name: body
+            label: Main text
+            type: rich-text
+            options:
+              format: markdown
+              media: false
+      - name: milestones
+        label: History timeline (About page)
+        type: file
+        path: content/milestones.yml
+        format: yaml
+        fields:
+          - name: milestones
+            label: Milestones
+            type: object
+            list: true
+            fields:
+              - name: year
+                label: Year
+                type: string
+              - name: title
+                label: Title
+                type: string
+              - name: description
+                label: Description
+                type: text
+      - name: article-categories
+        label: Article categories
+        type: file
+        path: content/article-categories.yml
+        format: yaml
+        fields:
+          - name: categories
+            label: Categories
+            type: object
+            list: true
+            fields:
+              - name: slug
+                label: Code (lowercase-with-hyphens)
+                type: string
+              - name: name
+                label: Name
+                type: string
+              - name: description
+                label: Description
+                type: text

@@ -1,6 +1,6 @@
 "use client";
 
-import type { Article } from "@/lib/content";
+import type { Article } from "@/lib/types";
 import { ARTICLE_TYPE_LABELS } from "@/lib/labels";
 import { ArticleCard } from "./cards";
 import { EmptyState } from "./ui";
