@@ -12,6 +12,13 @@ test("homepage shows the firm and a contact route", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "How to reach us" })).toBeVisible();
 });
 
+test("email links go to the firm's online message page", async ({ page }) => {
+  await page.goto("contact/");
+  await expect(page.getByRole("link", { name: "Message the firm online" })).toHaveAttribute("href", "https://example.com/message-the-firm");
+  await expect(page.locator("main").getByRole("link", { name: "reception@farrellmorhennlaw.com" })).toHaveAttribute("href", "https://example.com/message-the-firm");
+  await expect(page.locator('a[href^="mailto:"]')).toHaveCount(0);
+});
+
 test("main navigation reaches every section under the base path", async ({ page }) => {
   await page.goto("./");
   const nav = page.getByRole("navigation", { name: "Main" });

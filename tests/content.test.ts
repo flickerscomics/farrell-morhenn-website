@@ -21,8 +21,10 @@ import {
   vacancies,
 } from "@/lib/content";
 
-// Loading @/lib/content already validates every file and cross-reference;
-// these tests pin down the rules and catch wording that breaks immersion.
+// These tests load the sample content in tests/fixtures/content (see
+// vitest.config.ts), so the rules stay covered whatever the live site holds.
+// The wording checks scan the real /content folder. The real content itself is
+// validated by the build.
 
 function filesUnder(dir: string): string[] {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
@@ -55,7 +57,8 @@ describe("content", () => {
   it("reads like a real firm's website (no out-of-character wording)", () => {
     const banned = /in[- ]character|out[- ]of[- ]character|\bOOC\b|roleplay|role-play|fictional|GTA|real[- ]world|in-game|forum private message|Calder|Whitmore/i;
     for (const file of filesUnder(path.join(process.cwd(), "content"))) {
-      const text = fs.readFileSync(file, "utf8");
+      // Web addresses aren't shown as wording, so they may contain anything.
+      const text = fs.readFileSync(file, "utf8").replace(/https?:\/\/\S+/g, "");
       expect(text.match(banned)?.[0], path.relative(process.cwd(), file)).toBeUndefined();
     }
   });
@@ -74,7 +77,7 @@ describe("content", () => {
       ...articles().map((a) => `/news/${a.slug}`),
       ...pressReleases().map((r) => `/press/${r.slug}`),
     ]);
-    const texts = filesUnder(path.join(process.cwd(), "content")).map((f) => [f, fs.readFileSync(f, "utf8")] as const);
+    const texts = filesUnder(path.resolve(process.env.CONTENT_DIR ?? "content")).map((f) => [f, fs.readFileSync(f, "utf8")] as const);
     for (const [f, t] of texts) {
       for (const m of t.matchAll(/\[url=(\/[^\]\s]*)\]/gi)) {
         expect(routes.has(m[1].replace(/[?#].*$/, "").replace(/\/$/, "") || "/"), `${path.relative(process.cwd(), f)} links to ${m[1]}`).toBe(true);

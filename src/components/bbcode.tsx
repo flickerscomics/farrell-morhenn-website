@@ -9,8 +9,19 @@ import { colorOf, listStyleOf, parseBBCode, safeEmail, safeHref, safeImage, size
  * are shown as plain text, so a mistake is visible in the preview rather than
  * silently producing something unsafe.
  */
-export function BBCode({ children, className = "prose bbcode" }: { children: string; className?: string }) {
-  return <div className={className}>{flow(parseBBCode(children), "r")}</div>;
+export function BBCode({ children, className = "prose bbcode", emailLink }: { children: string; className?: string; emailLink?: string }) {
+  const nodes = parseBBCode(children);
+  return <div className={className}>{flow(emailLink ? redirectEmails(nodes, emailLink) : nodes, "r")}</div>;
+}
+
+/** Turns [email] links into links to the given page, keeping the address as the link text. */
+function redirectEmails(nodes: BBNode[], href: string): BBNode[] {
+  return nodes.map((n) => {
+    if (n.type === "text") return n;
+    if (n.name === "email" && safeEmail(n.attr || textOf(n.children))) return { ...n, name: "url", attr: href };
+    if (n.name === "url" && /^mailto:/i.test(n.attr || textOf(n.children))) return { ...n, attr: href };
+    return { ...n, children: redirectEmails(n.children, href) };
+  });
 }
 
 const BLOCKS = new Set(["h2", "h3", "quote", "list", "center", "right", "table", "hr"]);

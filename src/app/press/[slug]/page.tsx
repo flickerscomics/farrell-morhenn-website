@@ -9,7 +9,9 @@ import { absoluteUrl, pressListItem, pressRelease, pressReleases, relatedRelease
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return pressReleases().map((r) => ({ slug: r.slug }));
+  const params = pressReleases().map((r) => ({ slug: r.slug }));
+  // A static export needs at least one page here; with none, build a placeholder that shows "page not found".
+  return params.length ? params : [{ slug: "none" }];
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

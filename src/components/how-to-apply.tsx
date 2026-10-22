@@ -1,4 +1,5 @@
 import { site } from "@/lib/content";
+import { EmailLink } from "./email-link";
 
 /** Application instructions for vacancies (the site has no online forms). */
 export function HowToApply({ role }: { role?: string }) {
@@ -6,7 +7,7 @@ export function HowToApply({ role }: { role?: string }) {
     <div className="card">
       <h2 style={{ fontSize: "1.4rem" }}>How to apply</h2>
       <p>
-        Email your application to <a href={`mailto:${site.email}`}>{site.email}</a>
+        Email your application to <EmailLink address={site.email} />
         {role ? ` with "${role}" in the subject line` : ""}, or hand it in at reception. Please include:
       </p>
       <ul className="list-check">

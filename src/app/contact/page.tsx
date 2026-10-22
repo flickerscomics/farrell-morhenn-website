@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ContactOptions, Markdown, OfficeHoursTable, PageHero } from "@/components/ui";
 import { absoluteUrl, page, site } from "@/lib/content";
+import { EmailLink } from "@/components/email-link";
 import { timeZoneName } from "@/lib/time";
 
 const contact = page("contact");
@@ -29,7 +30,7 @@ export default function ContactPage() {
                 <dt>Telephone</dt>
                 <dd>{site.phone}</dd>
                 <dt>Email</dt>
-                <dd><a href={`mailto:${site.email}`}>{site.email}</a></dd>
+                <dd><EmailLink address={site.email} /></dd>
               </dl>
               {site.locationNote && <p className="small muted" style={{ margin: 0 }}>{site.locationNote}</p>}
             </div>
@@ -42,6 +43,13 @@ export default function ContactPage() {
           <div className="stack">
             <h2>How to reach us</h2>
             <ContactOptions methods={site.contactMethods} intro="Get in touch in any of these ways:" />
+            {site.emailLink && (
+              <p>
+                <a className="btn btn-primary" href={site.emailLink} target="_blank" rel="noopener noreferrer">
+                  Message the firm online
+                </a>
+              </p>
+            )}
             <div className="notice notice-warn" role="note">
               <p><strong>Confidentiality.</strong> {site.confidentialityNotice}</p>
             </div>

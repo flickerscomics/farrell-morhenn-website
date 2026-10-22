@@ -107,4 +107,8 @@ describe("BBCode helpers", () => {
   it("parses to a tree", () => {
     expect(parseBBCode("[b]x[/b]")).toEqual([{ type: "tag", name: "b", attr: "", children: [{ type: "text", text: "x" }] }]);
   });
+  it("can send email links to a web page instead", () => {
+    const out = renderToStaticMarkup(BBCode({ className: "x", children: "[email]a@b.com[/email] [url=mailto:a@b.com]mail[/url]", emailLink: "https://example.com/contact" }));
+    expect(out).toBe('<div class="x"><p><a href="https://example.com/contact" rel="noopener noreferrer nofollow" target="_blank">a@b.com</a> <a href="https://example.com/contact" rel="noopener noreferrer nofollow" target="_blank">mail</a></p></div>');
+  });
 });

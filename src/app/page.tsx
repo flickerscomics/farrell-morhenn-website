@@ -3,6 +3,7 @@ import { ArticleCard, PersonCard, PressCard } from "@/components/cards";
 import { HeroArt } from "@/components/hero-art";
 import { Markdown, OfficeHoursTable } from "@/components/ui";
 import { absoluteUrl, articles, currentPressReleases, featuredPracticeAreas, openVacancies, page, people, pressListItem, site } from "@/lib/content";
+import { EmailLink } from "@/components/email-link";
 import { timeZoneName } from "@/lib/time";
 
 export const metadata = { alternates: { canonical: absoluteUrl("/") } };
@@ -204,7 +205,7 @@ export default function HomePage() {
                 <dd>{site.phone}</dd>
                 <dt>Email</dt>
                 <dd>
-                  <a href={`mailto:${site.email}`}>{site.email}</a>
+                  <EmailLink address={site.email} />
                 </dd>
               </dl>
               <Link href="/contact" className="btn btn-primary">

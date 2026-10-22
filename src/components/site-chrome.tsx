@@ -2,6 +2,7 @@ import Link from "next/link";
 import { featuredPracticeAreas, site } from "@/lib/content";
 import { timeZoneName } from "@/lib/time";
 import { Brand } from "./brand";
+import { EmailLink } from "./email-link";
 import { MainNav, MobileMenu } from "./nav";
 
 export function SiteHeader() {
@@ -15,7 +16,7 @@ export function SiteHeader() {
               {site.phone}
             </span>
             <span className="hide-sm">
-              <a href={`mailto:${site.email}`}>{site.email}</a>
+              <EmailLink address={site.email} />
             </span>
           </div>
           <div className="row">
@@ -58,7 +59,7 @@ export function SiteFooter() {
             <p style={{ marginTop: "0.75rem" }}>
               {site.phone}
               <br />
-              <a href={`mailto:${site.email}`}>{site.email}</a>
+              <EmailLink address={site.email} />
             </p>
           </div>
           <div>
@@ -87,7 +88,7 @@ export function SiteFooter() {
             <h2>Get in touch</h2>
             <ul>
               <li><Link href="/contact">Contact &amp; office hours</Link></li>
-              <li><a href={`mailto:${site.email}`}>Email the office</a></li>
+              <li><EmailLink address={site.email}>Email the office</EmailLink></li>
               {site.socialLinks.map((s) => (
                 <li key={s.href}>
                   <a href={s.href} rel="noopener noreferrer" target="_blank">{s.label}</a>

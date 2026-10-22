@@ -64,7 +64,11 @@ export function PressList({ releases, categories }: { releases: PressListItem[];
       <p className="small muted" aria-live="polite">
         {shown.length} {shown.length === 1 ? "press release" : "press releases"}
       </p>
-      {shown.length === 0 ? (
+      {releases.length === 0 ? (
+        <EmptyState title="No press releases yet">
+          <p>Please check back soon.</p>
+        </EmptyState>
+      ) : shown.length === 0 ? (
         <EmptyState title="No press releases match your search">
           <p>
             <button type="button" className="btn btn-secondary btn-sm" onClick={clear}>Show all press releases</button>

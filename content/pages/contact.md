@@ -1,6 +1,6 @@
 ---
 title: Contact the office
-summary: Reach our Pillbox Hill office by phone, email or in person.
+summary: Reach our Los Santos office by phone, online or in person.
 metaDescription: Office address, telephone, opening hours and how to get in touch with Farrell-Morhenn.
 updatedOn: 2026-10-22
 sections: []

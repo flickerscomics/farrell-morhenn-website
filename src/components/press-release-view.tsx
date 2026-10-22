@@ -3,6 +3,7 @@ import { mediaContactFor, people, practiceArea, pressCategoryName, site, type Pr
 import { asset } from "@/lib/env";
 import { formatDate } from "@/lib/time";
 import { BBCode } from "./bbcode";
+import { EmailLink } from "./email-link";
 import { ReleaseActions } from "./release-actions";
 
 type Contact = ReturnType<typeof mediaContactFor>;
@@ -24,7 +25,7 @@ export function MediaContact({ contact }: { contact: Contact }) {
         {contact.email && (
           <>
             <dt>Email</dt>
-            <dd><a href={`mailto:${contact.email}`}>{contact.email}</a></dd>
+            <dd><EmailLink address={contact.email} /></dd>
           </>
         )}
         {contact.phone && (
@@ -77,11 +78,11 @@ export function PressReleaseView({ release: r, url }: { release: PressRelease; u
         <p className="dateline">
           <strong>{r.location}</strong> — {formatDate(r.releaseDate)} —
         </p>
-        <BBCode>{r.body}</BBCode>
+        <BBCode emailLink={site.emailLink}>{r.body}</BBCode>
         <p className="end-mark" aria-label="End of release">###</p>
         {boilerplate && (
           <section className="release-boilerplate" aria-label={`About ${site.firmName}`}>
-            <BBCode>{boilerplate}</BBCode>
+            <BBCode emailLink={site.emailLink}>{boilerplate}</BBCode>
           </section>
         )}
         {r.tags.length > 0 && (

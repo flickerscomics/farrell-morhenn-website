@@ -9,7 +9,9 @@ import { absoluteUrl, article, articles, authorOf, relatedArticles } from "@/lib
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return articles().map((a) => ({ slug: a.slug }));
+  const params = articles().map((a) => ({ slug: a.slug }));
+  // A static export needs at least one page here; with none, build a placeholder that shows "page not found".
+  return params.length ? params : [{ slug: "none" }];
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

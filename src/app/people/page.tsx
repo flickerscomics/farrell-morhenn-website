@@ -5,7 +5,7 @@ import { absoluteUrl, people, practiceAreas } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Our people",
-  description: "Attorneys and staff of Farrell-Morhenn, an independent law firm in Pillbox Hill, Los Santos.",
+  description: "Attorneys and staff of Farrell-Morhenn, an independent law firm in Los Santos.",
   alternates: { canonical: absoluteUrl("/people/") },
 };
 

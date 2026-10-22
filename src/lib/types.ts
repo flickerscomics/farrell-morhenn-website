@@ -180,6 +180,8 @@ export type Settings = {
   colorAccent: string;
   phone: string;
   email: string;
+  /** Where every email link on the site goes, instead of opening an email program. Empty for normal email links. */
+  emailLink: string;
   addressLines: string[];
   locationNote: string;
   timezone: string;

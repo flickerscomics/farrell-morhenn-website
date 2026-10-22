@@ -1,0 +1,92 @@
+firmName: Farrell-Morhenn
+shortName: Farrell-Morhenn
+tagline: Steady counsel for Los Santos.
+colorPrimary: "#15233b"
+colorAccent: "#a8864f"
+phone: 555-0147
+email: reception@farrellmorhennlaw.com
+emailLink: https://example.com/message-the-firm
+addressLines:
+  - Arcadius Business Center, Suite 2210
+  - Pillbox Hill
+  - Los Santos, San Andreas
+locationNote: On the 22nd floor of the Arcadius Business Center. Visitor parking is available in the building garage; check in at the ground-floor security desk.
+timezone: America/Los_Angeles
+officeHours:
+  - day: Sunday
+    closed: true
+    open: 10:00
+    close: 16:00
+  - day: Monday
+    closed: false
+    open: 09:00
+    close: 18:00
+  - day: Tuesday
+    closed: false
+    open: 09:00
+    close: 18:00
+  - day: Wednesday
+    closed: false
+    open: 09:00
+    close: 18:00
+  - day: Thursday
+    closed: false
+    open: 09:00
+    close: 18:00
+  - day: Friday
+    closed: false
+    open: 09:00
+    close: 17:00
+  - day: Saturday
+    closed: false
+    open: 10:00
+    close: 14:00
+contactMethods:
+  - Call the office on 555-0147
+  - Email reception@farrellmorhennlaw.com
+  - Visit the office in person during opening hours
+consultationTypes:
+  - Initial consultation
+  - Case review
+  - Document review
+  - Follow-up meeting
+  - Court preparation
+appointmentMinutes: 45
+navigation:
+  - label: About
+    href: /about
+  - label: Practice Areas
+    href: /practice-areas
+  - label: People
+    href: /people
+  - label: News & Insights
+    href: /news
+  - label: Press
+    href: /press
+  - label: Careers
+    href: /careers
+  - label: Contact
+    href: /contact
+socialLinks: []
+footerText: The information on this website is general information only and is not legal advice. Contacting the firm does not create an attorney-client relationship.
+heroEyebrow: Attorneys at law · Pillbox Hill, Los Santos
+heroTitle: Steady counsel when the stakes are high.
+heroText: Farrell-Morhenn represents individuals and businesses across Los Santos and Blaine County in criminal, civil, family and commercial matters. We tell you where you stand, and then we go to work.
+homeSections:
+  showPracticeAreas: true
+  showAttorneys: true
+  showProcess: true
+  showArticles: true
+  showCareers: true
+  showContact: true
+  showPress: true
+press:
+  contactName: Press Office
+  contactTitle: Farrell-Morhenn
+  contactEmail: press@farrellmorhennlaw.com
+  contactPhone: 555-0147
+  defaultLocation: LOS SANTOS, San Andreas
+  boilerplate: |-
+    [b]About Farrell-Morhenn[/b]
+    Farrell-Morhenn is a law firm based at the Arcadius Business Center in Pillbox Hill, Los Santos. Its attorneys represent individuals and businesses across Los Santos and Blaine County in criminal, civil, family and commercial matters. Find out more at [url=/about]the firm's website[/url].
+confidentialityNotice: Please do not send original documents or confidential material until an attorney has confirmed that the firm can act for you.

@@ -73,7 +73,11 @@ export function NewsList({ articles, categories }: { articles: Article[]; catego
       <p className="small muted" aria-live="polite">
         {shown.length} {shown.length === 1 ? "article" : "articles"}
       </p>
-      {shown.length === 0 ? (
+      {articles.length === 0 ? (
+        <EmptyState title="No articles yet">
+          <p>Please check back soon.</p>
+        </EmptyState>
+      ) : shown.length === 0 ? (
         <EmptyState title="No articles match your search">
           <p>
             <button type="button" className="btn btn-secondary btn-sm" onClick={clear}>Show all articles</button>

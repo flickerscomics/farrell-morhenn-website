@@ -20,6 +20,7 @@ export default defineConfig({
     url: `http://localhost:${PORT}${BASE}/`,
     timeout: 300_000,
     reuseExistingServer: false,
-    env: { PAGES_BASE_PATH: BASE, PORT: String(PORT), SITE_URL: `https://example.github.io${BASE}` },
+    // Built from the sample content in tests/fixtures, so the tests don't depend on what the live site holds.
+    env: { CONTENT_DIR: "tests/fixtures/content", PAGES_BASE_PATH: BASE, PORT: String(PORT), SITE_URL: `https://example.github.io${BASE}` },
   },
 });

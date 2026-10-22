@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArticleCard } from "@/components/cards";
 import { Markdown, PageHero, Portrait } from "@/components/ui";
 import { absoluteUrl, articles, isBookable, people, person, practiceArea, site } from "@/lib/content";
+import { EmailLink } from "@/components/email-link";
 import { STAFF_ROLE_LABELS } from "@/lib/labels";
 
 export const dynamicParams = false;
@@ -53,7 +54,7 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
                 <p className="small" style={{ margin: 0 }}>
                   {p.email ? (
                     <>
-                      Email <a href={`mailto:${p.email}`}>{p.email}</a> or call reception on {site.phone} and ask
+                      Email <EmailLink address={p.email} /> or call reception on {site.phone} and ask
                       for {firstName}.
                     </>
                   ) : (
@@ -90,7 +91,7 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
               {p.email && (
                 <div>
                   <dt>Email</dt>
-                  <dd><a href={`mailto:${p.email}`}>{p.email}</a></dd>
+                  <dd><EmailLink address={p.email} /></dd>
                 </div>
               )}
               {p.phone && (

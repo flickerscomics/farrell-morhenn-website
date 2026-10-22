@@ -1,0 +1,15 @@
+# Categories for press releases. To add one, add it here and to the category
+# list of the "Press releases" section in .pages.yml.
+categories:
+  - slug: firm-announcements
+    name: Firm announcements
+  - slug: appointments
+    name: Appointments
+  - slug: statements
+    name: Statements
+  - slug: community
+    name: Community
+  - slug: events
+    name: Events
+  - slug: case-outcomes
+    name: Case outcomes

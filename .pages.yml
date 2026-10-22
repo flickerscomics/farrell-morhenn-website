@@ -38,6 +38,9 @@ content:
       - name: email
         label: Email
         type: string
+      - name: emailLink
+        label: Email links go to (web address; leave empty for normal email links)
+        type: string
       - name: addressLines
         label: Office address (one line per entry)
         type: string

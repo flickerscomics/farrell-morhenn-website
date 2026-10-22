@@ -18,7 +18,7 @@ The menu on the left has these sections:
 
 | Section | What you can change |
 | --- | --- |
-| **Firm settings** | Firm name, tagline, colours, phone, email, address, office hours, contact methods, consultation types, homepage title and text, which homepage sections appear, the main menu, footer notice, press office contact and the "About the firm" paragraph for press releases |
+| **Firm settings** | Firm name, tagline, colours, phone, email, where email links go (a web page instead of an email program), address, office hours, contact methods, consultation types, homepage title and text, which homepage sections appear, the main menu, footer notice, press office contact and the "About the firm" paragraph for press releases |
 | **People** | Attorneys and staff: name, title, role, status, portrait, biography, practice areas, languages, contact details, qualifications. Add someone with **Add an entry**. |
 | **Practice areas** | Each practice area's description, matters handled, services, and whether it's shown or featured |
 | **News & articles** | Write, edit or schedule articles. Tick **Draft** to keep one hidden. |
@@ -94,8 +94,8 @@ npm install
 npm run dev          # http://localhost:3000
 npm run lint
 npm run typecheck
-npm test             # content checks, including a scan for out-of-character wording
-npm run test:e2e     # browser tests against a Pages-style build (first time: npx playwright install chromium)
+npm test             # rule checks against sample content, plus a wording scan of /content
+npm run test:e2e     # browser tests against a Pages-style build of the sample content (first time: npx playwright install chromium)
 
 # Preview exactly what GitHub Pages serves:
 PAGES_BASE_PATH=/farrell-morhenn-website npm run build
@@ -104,6 +104,7 @@ PAGES_BASE_PATH=/farrell-morhenn-website npm run preview
 
 ```
 content/              Editable content (YAML, and Markdown with a YAML header)
+tests/fixtures/       Fixed sample content the tests run against (set with CONTENT_DIR), so the live site can change freely
 .pages.yml            Pages CMS editing forms
 public/images/        Uploaded images
 src/lib/load.ts       Reads and validates /content at build time

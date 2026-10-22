@@ -9,7 +9,8 @@ import YAML from "yaml";
 import type { Article, ArticleType, Category, Faq, Milestone, Page, Person, PracticeArea, PressRelease, PressStatus, Settings, StaffRole, StaffStatus, Vacancy } from "./types";
 import { zonedTimeToUtc } from "./time";
 
-const ROOT = path.join(process.cwd(), "content");
+// CONTENT_DIR lets the tests load a fixed set of sample content instead.
+const ROOT = process.env.CONTENT_DIR ? path.resolve(process.env.CONTENT_DIR) : path.join(process.cwd(), "content");
 
 export class ContentError extends Error {}
 
@@ -64,6 +65,13 @@ function str(d: Raw, key: string, file: string, required = false): string {
   if (typeof v === "number" || typeof v === "boolean") return String(v);
   if (v instanceof Date) return v.toISOString().slice(0, 10);
   throw new ContentError(`content/${file}: "${key}" should be text`);
+}
+
+/** A web address (http or https), or empty. */
+function link(d: Raw, key: string, file: string): string {
+  const v = str(d, key, file);
+  if (v && !/^https?:\/\/[^\s"<>]+$/i.test(v)) throw new ContentError(`content/${file}: "${key}" should be a web address starting with https://`);
+  return v;
 }
 
 function bool(d: Raw, key: string, fallback: boolean): boolean {
@@ -149,6 +157,7 @@ export function loadSettings(): Settings {
     colorAccent: colour("colorAccent", "#a8864f"),
     phone: str(d, "phone", f),
     email: str(d, "email", f),
+    emailLink: link(d, "emailLink", f),
     addressLines: list(d, "addressLines"),
     locationNote: str(d, "locationNote", f),
     timezone: str(d, "timezone", f) || "America/Los_Angeles",
