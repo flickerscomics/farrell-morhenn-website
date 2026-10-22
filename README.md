@@ -41,7 +41,7 @@ You can still edit the files in `content/` directly on GitHub if you prefer.
 
 ## Publishing on GitHub Pages
 
-Publishing is automatic: every change to `main` runs the **Deploy to GitHub Pages** workflow, which checks, builds and publishes the site. Pages must be set to **Settings → Pages → Source: GitHub Actions** (already done).
+Publishing is automatic: every change to `main` runs the **Deploy to GitHub Pages** workflow, which checks, builds and publishes the site. Pages must be set to **Settings → Pages → Source: GitHub Actions**.
 
 **Renaming the repository** needs no code changes. The address simply becomes `https://<owner>.github.io/<new-name>/`. Custom domains (Settings → Pages → Custom domain) work too.
 
@@ -62,8 +62,8 @@ npm test             # content checks, including a scan for out-of-character wor
 npm run test:e2e     # browser tests against a Pages-style build (first time: npx playwright install chromium)
 
 # Preview exactly what GitHub Pages serves:
-PAGES_BASE_PATH=/built-different npm run build
-PAGES_BASE_PATH=/built-different npm run preview
+PAGES_BASE_PATH=/farrell-morhenn-website npm run build
+PAGES_BASE_PATH=/farrell-morhenn-website npm run preview
 ```
 
 ```

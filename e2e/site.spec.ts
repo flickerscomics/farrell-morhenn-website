@@ -8,7 +8,7 @@ test("homepage shows the firm and a contact route", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.locator(".brand-mark text").first()).toHaveText("FM");
   await page.getByRole("link", { name: "Contact the office" }).first().click();
-  await expect(page).toHaveURL(/\/built-different\/contact\/$/);
+  await expect(page).toHaveURL(/\/farrell-morhenn-website\/contact\/$/);
   await expect(page.getByRole("heading", { name: "How to reach us" })).toBeVisible();
 });
 
@@ -25,7 +25,7 @@ test("main navigation reaches every section under the base path", async ({ page 
   ] as const) {
     await nav.getByRole("link", { name: label }).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(heading);
-    expect(new URL(page.url()).pathname.startsWith("/built-different/")).toBe(true);
+    expect(new URL(page.url()).pathname.startsWith("/farrell-morhenn-website/")).toBe(true);
   }
 });
 
@@ -98,7 +98,7 @@ test("missing pages, drafts and hidden profiles return the 404 page", async ({ p
     await expect(page.getByRole("heading", { name: "We could not find that page" })).toBeVisible();
   }
   const sitemap = await (await request.get("sitemap.xml")).text();
-  expect(sitemap).toContain("https://example.github.io/built-different/practice-areas/criminal-defence/");
+  expect(sitemap).toContain("https://example.github.io/farrell-morhenn-website/practice-areas/criminal-defence/");
   expect(sitemap).not.toContain("robert-hale");
 });
 

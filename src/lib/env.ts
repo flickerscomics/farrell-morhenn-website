@@ -2,7 +2,7 @@
 // both from the repository's Pages configuration, so renaming the repository
 // needs no code change.
 
-/** Path prefix the site is served under, e.g. "/built-different" ("" at a domain root). */
+/** Path prefix the site is served under, e.g. "/farrell-morhenn-website" ("" at a domain root). */
 export const BASE_PATH = (process.env.PAGES_BASE_PATH ?? "").replace(/\/+$/, "");
 
 /** Absolute site URL used for canonical links, the sitemap and social metadata. */

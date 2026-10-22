@@ -3,7 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 // Builds the static export with a GitHub Pages style base path and serves it
 // the way Pages does, so the tests exercise exactly what gets deployed.
 const PORT = 3200;
-const BASE = "/built-different";
+const BASE = "/farrell-morhenn-website";
 
 export default defineConfig({
   testDir: "e2e",
