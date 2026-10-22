@@ -1,6 +1,6 @@
 # Farrell-Morhenn website
 
-The website of **Farrell-Morhenn**, a law firm in Pillbox Hill, Los Santos, for the GTA World roleplay community. It is written to read as a genuine in-character law firm website, with no out-of-character wording on any page. It is a static site hosted free on **GitHub Pages**.
+The website of **Farrell-Morhenn**, a law firm in Pillbox Hill, Los Santos, for the GTA World roleplay community. It is written to read as a genuine in-character law firm website, with no out-of-character wording on any page. It is a static site hosted free on **Cloudflare Pages**.
 
 ## Editing the website (no code needed)
 
@@ -27,7 +27,7 @@ The menu on the left has these sections:
 | **FAQs** | Questions, answers and categories |
 | **Website pages** | Homepage introduction and steps, About, Careers intro, Contact, Privacy, Terms, Legal disclaimer, history timeline, article categories, press release categories |
 
-Press **Save** and Pages CMS saves the change to GitHub. The site republishes automatically about a minute later.
+Press **Save** and Pages CMS saves the change to GitHub. The site republishes automatically a couple of minutes later.
 
 **Good to know**
 
@@ -75,17 +75,19 @@ Leave a blank line between paragraphs. A single line break is kept as a line bre
 
 Anything else, including HTML, is shown as plain text. Links may only go to web addresses, email addresses or pages on this site, and images must be uploaded to the site.
 
-## Publishing on GitHub Pages
+## Publishing
 
-The live site is **https://farrell-morhenn.com**. The domain's DNS is managed in Cloudflare: four `A` records for `@` point to GitHub Pages (185.199.108.153, .109.153, .110.153 and .111.153), and a `CNAME` record for `www` points to `flickerscomics.github.io`. The domain is also set under **Settings → Pages → Custom domain**.
+The live site is **https://farrell-morhenn.com**, built and hosted by **Cloudflare Pages** (project `farrell-morhenn`, also at `farrell-morhenn.pages.dev`).
 
-Publishing is automatic: every change to `main` runs the **Deploy to GitHub Pages** workflow, which checks, builds and publishes the site. It also runs every hour so scheduled releases and articles appear on time. (GitHub switches off hourly runs in a repository with no activity for 60 days. If that happens, re-enable the workflow from the repository's **Actions** tab.) Pages must be set to **Settings → Pages → Source: GitHub Actions**.
-
-**Renaming the repository** needs no code changes. The address simply becomes `https://<owner>.github.io/<new-name>/`. Custom domains (Settings → Pages → Custom domain) work too.
+- **Every push to `main`**, including every Pages CMS save, makes Cloudflare build the site (`npm run build`, output folder `out`) and publish it, usually within a couple of minutes. Other branches get preview links.
+- **The same push runs the checks** (lint, types, content tests) in GitHub's **Actions** tab, under *Checks and scheduled publishing*. Cloudflare publishes without running them, so a red check there means something needs fixing.
+- **Scheduled articles and press releases.** Once an hour, the same workflow builds the site and compares its sitemap with the live one. When something has come due, it asks Cloudflare to rebuild through a deploy hook, so Cloudflare only builds when something changed (the free plan allows 500 builds a month). To set it up: in Cloudflare open **Workers & Pages → farrell-morhenn → Settings → Builds → Deploy hooks**, add a hook for branch `main` and copy its URL. Then in GitHub open **Settings → Secrets and variables → Actions → New repository secret** and save the URL as `CLOUDFLARE_DEPLOY_HOOK`. Running the workflow by hand from the Actions tab always triggers a rebuild. (GitHub switches off hourly runs in a repository with no activity for 60 days. If that happens, re-enable the workflow from the **Actions** tab.)
+- **DNS** is in Cloudflare: `farrell-morhenn.com` and `www` are proxied `CNAME` records pointing to `farrell-morhenn.pages.dev`, and Cloudflare manages the certificates.
+- The old GitHub Pages address (`flickerscomics.github.io/farrell-morhenn-website/`) still redirects to the domain. The site no longer deploys there.
 
 ## What a static site can't do
 
-GitHub Pages only serves files, so the site has no online forms, logins, admin area or client portal. Staff logins and an admin area are planned; see [`docs/ROADMAP.md`](docs/ROADMAP.md). Visitors contact the firm by phone, email or in person, as the Contact page explains. A full database-backed version (online forms, admin dashboard, matter management, client portal) was built earlier and is preserved in this repository's history at commit `2fa7790`. It needs a Node.js host with PostgreSQL rather than GitHub Pages.
+The site is static (Cloudflare Pages only serves files), so it has no online forms, logins, admin area or client portal. Staff logins and an admin area are planned; see [`docs/ROADMAP.md`](docs/ROADMAP.md). Visitors contact the firm by phone, email or in person, as the Contact page explains. A full database-backed version (online forms, admin dashboard, matter management, client portal) was built earlier and is preserved in this repository's history at commit `2fa7790`. It needs a Node.js host with PostgreSQL rather than a static host.
 
 ## For developers
 
@@ -99,9 +101,9 @@ npm run typecheck
 npm test             # rule checks against sample content, plus a wording scan of /content
 npm run test:e2e     # browser tests against a Pages-style build of the sample content (first time: npx playwright install chromium)
 
-# Preview exactly what GitHub Pages serves:
-PAGES_BASE_PATH=/farrell-morhenn-website npm run build
-PAGES_BASE_PATH=/farrell-morhenn-website npm run preview
+# Preview the built site (PAGES_BASE_PATH is only needed when serving under a sub-path):
+npm run build
+npm run preview
 ```
 
 ```

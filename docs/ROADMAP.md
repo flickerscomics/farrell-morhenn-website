@@ -2,9 +2,9 @@
 
 Agreed with the firm's owner in October 2026. Phase 1 is done; the rest is planned but **not built yet**.
 
-## Approach: GitHub Pages plus a small login service
+## Approach: the static site plus a small login service
 
-The public site stays a static site on GitHub Pages, with content in this repository. A small login service (Cloudflare Workers with a D1 database, free tier) hosts the editing area. When someone saves, the service checks their permissions and commits the change to this repository through a GitHub App installed on the owner's **flickerscomics** account, so every change is attributed to that account. The site then rebuilds as it does today, and the content checks in `src/lib/load.ts` and `src/lib/content.ts` still stop a bad edit from going live.
+The public site stays a static site on Cloudflare Pages, with content in this repository. A small login service (Cloudflare Workers with a D1 database, free tier) hosts the editing area. When someone saves, the service checks their permissions and commits the change to this repository through a GitHub App installed on the owner's **flickerscomics** account, so every change is attributed to that account. The site then rebuilds as it does today, and the content checks in `src/lib/load.ts` and `src/lib/content.ts` still stop a bad edit from going live.
 
 The editing area is served by the login service itself, so its session cookie is first-party. The GitHub App's private key is stored only as an encrypted Cloudflare secret, never in the code.
 

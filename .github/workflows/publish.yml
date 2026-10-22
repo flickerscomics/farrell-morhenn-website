@@ -1,0 +1,70 @@
+# The site is built and hosted by Cloudflare Pages, which rebuilds on every push
+# to main. This workflow does two things Cloudflare doesn't:
+#   - checks every push to main (lint, types, content tests), so a mistake is
+#     flagged here even though Cloudflare publishes the build;
+#   - once an hour, builds the site and compares its sitemap with the live one.
+#     When a scheduled article or press release has come due (or a vacancy has
+#     closed), it asks Cloudflare to rebuild through a deploy hook. Rebuilding
+#     only when something changed keeps well inside Cloudflare's free build quota.
+# Setup: put the Cloudflare deploy hook URL in the repository secret
+# CLOUDFLARE_DEPLOY_HOOK (see README, "Publishing").
+name: Checks and scheduled publishing
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  check:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+
+  publish-scheduled:
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Rebuild on Cloudflare if the published pages have changed
+        env:
+          HOOK: ${{ secrets.CLOUDFLARE_DEPLOY_HOOK }}
+          FORCE: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          grep -o '<loc>[^<]*' out/sitemap.xml | sort > expected.txt
+          curl -fsS https://farrell-morhenn.com/sitemap.xml | grep -o '<loc>[^<]*' | sort > live.txt || true
+          if [ "$FORCE" != "true" ] && cmp -s expected.txt live.txt; then
+            echo "The live site is up to date."
+            exit 0
+          fi
+          diff live.txt expected.txt || true
+          if [ -z "$HOOK" ]; then
+            echo "::warning::The site needs rebuilding, but the CLOUDFLARE_DEPLOY_HOOK secret isn't set."
+            exit 0
+          fi
+          curl -fsS -X POST "$HOOK" > /dev/null
+          echo "Asked Cloudflare to rebuild the site."

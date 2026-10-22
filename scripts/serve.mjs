@@ -1,7 +1,7 @@
 // Serves the static export in ./out the way GitHub Pages does: under the
 // base path, with directory index.html files and 404.html for missing pages.
 //
-//   PAGES_BASE_PATH=/farrell-morhenn-website npm run build && PAGES_BASE_PATH=/farrell-morhenn-website npm run preview
+//   npm run build && npm run preview   (add PAGES_BASE_PATH=/sub-path to both to test a sub-path)
 
 import { createReadStream, existsSync, statSync } from "node:fs";
 import { createServer } from "node:http";
