@@ -2105,3 +2105,7 @@ dialog.confirm-dialog h2 {
   color: var(--ink-3);
   cursor: not-allowed;
 }
+.admin-inline-btn {
+  padding-left: 0;
+  margin-top: 0.15rem;
+}

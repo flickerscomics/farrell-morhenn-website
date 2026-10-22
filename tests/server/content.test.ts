@@ -30,7 +30,7 @@ describe("the editing schema", () => {
 describe("staff profile changes", () => {
   it("wait for an admin's approval before going live", async () => {
     const s = await withAdmin();
-    const nina = await invite(s, { name: "Nina Bernardi", email: "nina@example.com", roleId: "staff", personSlug: "nina-bernardi" });
+    const nina = await invite(s, { name: "Nina Bernardi", username: "nina", roleId: "staff", personSlug: "nina-bernardi" });
     const before = s.repo.files.get("content/people/nina-bernardi.md")!.text;
 
     const { item } = await load(nina.browser, "people", "nina-bernardi.md");
@@ -64,7 +64,7 @@ describe("staff profile changes", () => {
 
   it("can be rejected with a reason, or withdrawn", async () => {
     const s = await withAdmin();
-    const nina = await invite(s, { name: "Nina Bernardi", email: "nina@example.com", roleId: "staff", personSlug: "nina-bernardi" });
+    const nina = await invite(s, { name: "Nina Bernardi", username: "nina", roleId: "staff", personSlug: "nina-bernardi" });
     const { item } = await load(nina.browser, "people", "nina-bernardi.md");
     const first = await nina.browser.put("item", { section: "people", file: "nina-bernardi.md", sha: item.sha, values: { ...item.values, shortBio: "First try" } });
     expect((await s.admin.post(`approvals/${first.json.id}/reject`, { reason: "Please keep it formal." })).status).toBe(200);
@@ -78,7 +78,7 @@ describe("staff profile changes", () => {
 
   it("staff can only edit their own profile", async () => {
     const s = await withAdmin();
-    const nina = await invite(s, { name: "Nina Bernardi", email: "nina@example.com", roleId: "staff", personSlug: "nina-bernardi" });
+    const nina = await invite(s, { name: "Nina Bernardi", username: "nina", roleId: "staff", personSlug: "nina-bernardi" });
     expect((await load(nina.browser, "people", "gideon-morhenn.md")).status).toBe(403);
     const gideon = await load(s.admin, "people", "gideon-morhenn.md");
     expect((await nina.browser.put("item", { section: "people", file: "gideon-morhenn.md", sha: gideon.item.sha, values: gideon.item.values })).status).toBe(403);
@@ -99,7 +99,7 @@ describe("staff profile changes", () => {
 
   it("renaming a profile's web address moves the file and keeps the account linked", async () => {
     const s = await withAdmin();
-    const nina = await invite(s, { name: "Nina Bernardi", email: "nina@example.com", roleId: "staff", personSlug: "nina-bernardi" });
+    const nina = await invite(s, { name: "Nina Bernardi", username: "nina", roleId: "staff", personSlug: "nina-bernardi" });
     const { item } = await load(s.admin, "people", "nina-bernardi.md");
     const res = await s.admin.put("item", { section: "people", file: "nina-bernardi.md", sha: item.sha, values: { ...item.values, slug: "nina-b" } });
     expect(res.json.file).toBe("nina-b.md");
@@ -110,7 +110,7 @@ describe("staff profile changes", () => {
 
   it("marking someone as departed disables their account", async () => {
     const s = await withAdmin();
-    const nina = await invite(s, { name: "Nina Bernardi", email: "nina@example.com", roleId: "staff", personSlug: "nina-bernardi" });
+    const nina = await invite(s, { name: "Nina Bernardi", username: "nina", roleId: "staff", personSlug: "nina-bernardi" });
     const { item } = await load(s.admin, "people", "nina-bernardi.md");
     await s.admin.put("item", { section: "people", file: "nina-bernardi.md", sha: item.sha, values: { ...item.values, status: "DEPARTED" } });
     expect((await nina.browser.get("schema")).status).toBe(401);
@@ -146,7 +146,7 @@ describe("saving content", () => {
   it("press editors without publishing rights can only keep drafts", async () => {
     const s = await withAdmin();
     const role = await s.admin.post("roles", { name: "Press writer", permissions: ["press.write"] });
-    const writer = await invite(s, { name: "Wren Writer", email: "wren@example.com", roleId: String(role.json.id) });
+    const writer = await invite(s, { name: "Wren Writer", username: "wren", roleId: String(role.json.id) });
     const values = { title: "News", slug: "some-news", status: "PUBLISHED", releaseDate: "2026-10-30", summary: "Summary" };
     expect((await writer.browser.post("item", { section: "press", values })).status).toBe(403);
     expect((await writer.browser.post("item", { section: "press", values: { ...values, status: "DRAFT" } })).status).toBe(200);

@@ -20,9 +20,9 @@ The public site stays a static site on Cloudflare Pages, with content in this re
 Built in October 2026. See "Staff admin area" in the README for setup and day-to-day use.
 
 - Pages Functions and D1: users, roles, sessions, invitations, rate limits, pending profile changes and the activity log, with tables created automatically (`src/server/db.ts`).
-- **Accounts:** invitation-only, with single-use links (48 hours for invitations, 24 for password resets). Disabling an account, changing its role, or marking its profile Departed or Inactive ends its sessions.
+- **Accounts:** invitation-only, signing in with a username (no email addresses), with single-use links (48 hours for invitations, 24 for password resets). Disabling an account, changing its role, or marking its profile Departed or Inactive ends its sessions.
 - **Security:**
-  - PBKDF2-SHA256 password hashes, 100,000 iterations (the Workers maximum; Argon2id doesn't fit a Workers request). Minimum 12 characters, with checks against common passwords and the person's own name or email.
+  - PBKDF2-SHA256 password hashes, 100,000 iterations (the Workers maximum; Argon2id doesn't fit a Workers request). Minimum 12 characters, with checks against common passwords and the person's own name or username.
   - Server-side sessions in a `__Host-` cookie (Secure, HttpOnly, SameSite=Strict) lasting 8 hours.
   - CSRF tokens and same-origin checks on every change.
   - Login rate limiting per address, and a 15-minute lockout after 5 wrong passwords.

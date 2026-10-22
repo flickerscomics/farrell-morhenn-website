@@ -34,6 +34,7 @@ export function TextField({ label, help, ...props }: { label: string; help?: Rea
   );
 }
 
+export const USERNAME_HELP = "What you'll type to sign in. Spaces are fine, e.g. Richard Sullivan. Leave blank to use the name above.";
 const PASSWORD_HELP = "At least 12 characters. A short sentence you'll remember works well.";
 
 /** Runs a form submission, showing a problem message on failure. */
@@ -66,33 +67,33 @@ function Narrow({ title, lead, children }: { title: string; lead?: string; child
 }
 
 export function Login({ onDone }: { onDone: () => void }) {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const { busy, error, onSubmit } = useSubmit(async () => {
-    await api("POST", "login", { email, password });
+    await api("POST", "login", { username, password });
     onDone();
   });
   return (
     <Narrow title="Staff sign-in" lead="For Farrell-Morhenn staff. Ask an admin if you need an account.">
       <form className="stack" onSubmit={onSubmit}>
         <Problem message={error} />
-        <TextField label="Email address" name="email" type="email" autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} />
+        <TextField label="Username" name="username" autoComplete="username" autoCapitalize="none" spellCheck={false} required value={username} onChange={(e) => setUsername(e.target.value)} />
         <TextField label="Password" name="password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
         <button className="btn btn-primary" type="submit" disabled={busy}>
           {busy ? "Signing in…" : "Sign in"}
         </button>
-        <p className="small muted">Forgotten your password? Ask an admin to send you a reset link.</p>
+        <p className="small muted">Forgotten your password or username? Ask an admin to help.</p>
       </form>
     </Narrow>
   );
 }
 
 export function Setup({ onDone }: { onDone: () => void }) {
-  const [v, setV] = useState({ code: "", name: "", email: "", password: "", confirm: "" });
+  const [v, setV] = useState({ code: "", name: "", username: "", password: "", confirm: "" });
   const set = (k: keyof typeof v) => (e: React.ChangeEvent<HTMLInputElement>) => setV({ ...v, [k]: e.target.value });
   const { busy, error, onSubmit } = useSubmit(async () => {
     if (v.password !== v.confirm) throw new Error("The two passwords don't match.");
-    await api("POST", "setup", { code: v.code, name: v.name, email: v.email, password: v.password });
+    await api("POST", "setup", { code: v.code, name: v.name, username: v.username, password: v.password });
     onDone();
   });
   return (
@@ -101,7 +102,7 @@ export function Setup({ onDone }: { onDone: () => void }) {
         <Problem message={error} />
         <TextField label="Setup code" name="code" type="password" autoComplete="off" required value={v.code} onChange={set("code")} />
         <TextField label="Your name" name="name" autoComplete="name" required value={v.name} onChange={set("name")} />
-        <TextField label="Email address" name="email" type="email" autoComplete="username" required value={v.email} onChange={set("email")} help="Only used to sign in." />
+        <TextField label="Username" name="username" autoComplete="username" value={v.username} onChange={set("username")} help={USERNAME_HELP} />
         <TextField label="Password" name="password" type="password" autoComplete="new-password" required value={v.password} onChange={set("password")} help={PASSWORD_HELP} />
         <TextField label="Password again" name="confirm" type="password" autoComplete="new-password" required value={v.confirm} onChange={set("confirm")} />
         <button className="btn btn-primary" type="submit" disabled={busy}>
@@ -113,12 +114,12 @@ export function Setup({ onDone }: { onDone: () => void }) {
 }
 
 export function AcceptLink({ token, onDone }: { token: string; onDone: () => void }) {
-  const [info, setInfo] = useState<{ kind: string; name: string; email: string } | null>(null);
+  const [info, setInfo] = useState<{ kind: string; name: string; username: string } | null>(null);
   const [loadError, setLoadError] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   useEffect(() => {
-    api<{ kind: string; name: string; email: string }>("POST", "accept/check", { token })
+    api<{ kind: string; name: string; username: string }>("POST", "accept/check", { token })
       .then(setInfo)
       .catch((e: Error) => setLoadError(e.message));
   }, [token]);
@@ -132,10 +133,10 @@ export function AcceptLink({ token, onDone }: { token: string; onDone: () => voi
   if (!info) return <p className="muted">Checking your link…</p>;
   const invite = info.kind === "invite";
   return (
-    <Narrow title={invite ? `Welcome, ${info.name}` : "Choose a new password"} lead={invite ? "Choose a password to finish setting up your account." : `For ${info.email}.`}>
+    <Narrow title={invite ? `Welcome, ${info.name}` : "Choose a new password"} lead={invite ? "Choose a password to finish setting up your account." : `For ${info.username}.`}>
       <form className="stack" onSubmit={onSubmit}>
         <Problem message={error} />
-        <TextField label="Email address" name="email" type="email" autoComplete="username" value={info.email} readOnly />
+        <TextField label="Your username" name="username" autoComplete="username" value={info.username} readOnly help="You'll use this to sign in." />
         <TextField label="New password" name="password" type="password" autoComplete="new-password" required value={password} onChange={(e) => setPassword(e.target.value)} help={PASSWORD_HELP} />
         <TextField label="New password again" name="confirm" type="password" autoComplete="new-password" required value={confirm} onChange={(e) => setConfirm(e.target.value)} />
         <button className="btn btn-primary" type="submit" disabled={busy}>
@@ -163,7 +164,7 @@ export function ChangePassword({ me }: { me: Me }) {
       <form className="stack" onSubmit={onSubmit}>
         <Problem message={error} />
         <Done message={done} />
-        <input type="hidden" autoComplete="username" value={me.email} readOnly />
+        <input type="hidden" autoComplete="username" value={me.username} readOnly />
         <TextField label="Current password" name="current" type="password" autoComplete="current-password" required value={v.current} onChange={set("current")} />
         <TextField label="New password" name="password" type="password" autoComplete="new-password" required value={v.password} onChange={set("password")} help={PASSWORD_HELP} />
         <TextField label="New password again" name="confirm" type="password" autoComplete="new-password" required value={v.confirm} onChange={set("confirm")} />

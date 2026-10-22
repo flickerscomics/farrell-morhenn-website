@@ -8,7 +8,7 @@ import type { Field } from "@/server/schema";
 
 export interface Me {
   id: string;
-  email: string;
+  username: string;
   name: string;
   roleId: string;
   roleName: string;

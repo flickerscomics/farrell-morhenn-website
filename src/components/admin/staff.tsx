@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { api, when, type Me } from "./api";
-import { Done, Problem, TextField } from "./auth-views";
+import { Done, Problem, TextField, USERNAME_HELP } from "./auth-views";
 
 interface Account {
   id: string;
-  email: string;
+  username: string;
   name: string;
   roleId: string;
   roleName: string;
@@ -50,7 +50,7 @@ export function Staff({ me }: { me: Me }) {
   const [error, setError] = useState("");
   const [done, setDone] = useState("");
   const [link, setLink] = useState<{ link: string; kind: string } | null>(null);
-  const [form, setForm] = useState({ name: "", email: "", roleId: "staff", personSlug: "" });
+  const [form, setForm] = useState({ name: "", username: "", roleId: "staff", personSlug: "" });
   const [busy, setBusy] = useState(false);
 
   async function load() {
@@ -113,7 +113,17 @@ export function Staff({ me }: { me: Me }) {
                   <tr key={a.id}>
                     <td>
                       <strong>{a.name}</strong>
-                      <div className="small muted">{a.email}</div>
+                      <div className="small muted">Username: {a.username}</div>
+                      <button
+                        className="btn btn-ghost btn-sm admin-inline-btn"
+                        disabled={busy}
+                        onClick={() => {
+                          const next = window.prompt(`New username for ${a.name}. Spaces are fine.`, a.username);
+                          if (next !== null && next.trim() && next !== a.username) void run(() => api("PATCH", `users/${a.id}`, { username: next }), `${a.name} now signs in as "${next.replace(/\s+/g, " ").trim()}".`);
+                        }}
+                      >
+                        Change username
+                      </button>
                     </td>
                     <td>
                       <select className="select select-sm" aria-label={`Role for ${a.name}`} value={a.roleId} disabled={busy || self} onChange={(e) => void run(() => api("PATCH", `users/${a.id}`, { roleId: e.target.value }), `${a.name}'s role was changed.`)}>
@@ -174,7 +184,7 @@ export function Staff({ me }: { me: Me }) {
           void run(async () => {
             const r = await api<{ link: string }>("POST", "users", form);
             setLink({ link: r.link, kind: "invite" });
-            setForm({ name: "", email: "", roleId: "staff", personSlug: "" });
+            setForm({ name: "", username: "", roleId: "staff", personSlug: "" });
           });
         }}
       >
@@ -184,7 +194,7 @@ export function Staff({ me }: { me: Me }) {
         </p>
         <div className="form-grid">
           <TextField label="Name" name="invite-name" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-          <TextField label="Email address (for signing in)" name="invite-email" type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+          <TextField label="Username (for signing in)" name="invite-username" autoComplete="off" placeholder={form.name || "Same as their name"} value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} help={USERNAME_HELP} />
           <div className="field">
             <label className="label" htmlFor="invite-role">Role</label>
             <select id="invite-role" className="select" value={form.roleId} onChange={(e) => setForm({ ...form, roleId: e.target.value })}>

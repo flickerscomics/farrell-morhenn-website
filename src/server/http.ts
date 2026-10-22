@@ -36,7 +36,7 @@ export const RESET_HOURS = 24;
 
 export interface User {
   id: string;
-  email: string;
+  username: string;
   name: string;
   roleId: string;
   roleName: string;
@@ -87,8 +87,16 @@ export function str(v: unknown, max = 500): string {
   return typeof v === "string" ? v.trim().slice(0, max) : "";
 }
 
-export function isEmail(s: string) {
-  return s.length <= 200 && /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(s);
+/** Tidies a username as typed: trims it and collapses runs of spaces. Matching ignores upper and lower case. */
+export function cleanUsername(v: unknown): string {
+  return typeof v === "string" ? v.normalize("NFC").replace(/\s+/g, " ").trim().slice(0, 100) : "";
+}
+
+/** Returns a reason the username can't be used, or null. */
+export function usernameProblem(username: string): string | null {
+  if (username.length < 3 || username.length > 50) return "Usernames must be 3 to 50 characters long.";
+  if (!/^[\p{L}\p{N}][\p{L}\p{N} ._'-]*$/u.test(username)) return "Usernames can use letters, numbers, spaces, full stops, hyphens, apostrophes and underscores, starting with a letter or number.";
+  return null;
 }
 
 let repoCache: { key: string; repo: Repo } | null = null;
@@ -146,12 +154,12 @@ export function readCookie(req: Request, name: string): string | null {
   return null;
 }
 
-type UserRow = { id: string; email: string; name: string; role_id: string; person_slug: string | null; role_name: string; is_admin: number; permissions: string };
+type UserRow = { id: string; username: string; name: string; role_id: string; person_slug: string | null; role_name: string; is_admin: number; permissions: string };
 
 export function toUser(row: UserRow): User {
   return {
     id: row.id,
-    email: row.email,
+    username: row.username,
     name: row.name,
     roleId: row.role_id,
     roleName: row.role_name,
@@ -167,7 +175,7 @@ export async function loadSession(ctx: Ctx) {
   const id = await sha256(token);
   const row = await ctx.db
     .prepare(
-      `SELECT s.id AS sid, s.csrf, u.id, u.email, u.name, u.role_id, u.person_slug, r.name AS role_name, r.is_admin, r.permissions
+      `SELECT s.id AS sid, s.csrf, u.id, u.username, u.name, u.role_id, u.person_slug, r.name AS role_name, r.is_admin, r.permissions
        FROM sessions s JOIN users u ON u.id = s.user_id JOIN roles r ON r.id = u.role_id
        WHERE s.id = ? AND s.expires_at > ? AND u.status = 'active'`,
     )

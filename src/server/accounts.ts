@@ -8,10 +8,11 @@ import {
   RESET_HOURS,
   audit,
   body,
-  isEmail,
+  cleanUsername,
   json,
   permissionsOf,
   rateLimit,
+  usernameProblem,
   requirePerm,
   requireUser,
   startSession,
@@ -26,15 +27,15 @@ const LOCK_AFTER = 5;
 const LOCK_MINUTES = 15;
 
 type RoleRow = { id: string; name: string; description: string; permissions: string; built_in: number; is_admin: number };
-type UserRow = { id: string; email: string; name: string; role_id: string; person_slug: string | null; status: string; password_hash: string | null; failed_logins: number; locked_until: number };
+type UserRow = { id: string; username: string; name: string; role_id: string; person_slug: string | null; status: string; password_hash: string | null; failed_logins: number; locked_until: number };
 
-function relatedWords(name: string, email: string) {
-  return [email.split("@")[0], ...name.split(/\s+/)];
+function relatedWords(name: string, username: string) {
+  return [...username.split(/[\s@._-]+/), ...name.split(/\s+/)];
 }
 
-function checkPassword(password: unknown, name: string, email: string): string {
+function checkPassword(password: unknown, name: string, username: string): string {
   const p = typeof password === "string" ? password : "";
-  const problem = passwordProblem(p, relatedWords(name, email));
+  const problem = passwordProblem(p, relatedWords(name, username));
   if (problem) throw new HttpError(400, problem);
   return p;
 }
@@ -57,22 +58,23 @@ export async function setup(ctx: Ctx) {
     throw new HttpError(403, "That setup code is wrong.");
   }
   const name = str(input.name, 100);
-  const email = str(input.email, 200).toLowerCase();
   if (!name) throw new HttpError(400, "Enter your name.");
-  if (!isEmail(email)) throw new HttpError(400, "Enter a valid email address.");
-  const password = checkPassword(input.password, name, email);
+  const username = cleanUsername(input.username) || cleanUsername(name);
+  const bad = usernameProblem(username);
+  if (bad) throw new HttpError(400, bad);
+  const password = checkPassword(input.password, name, username);
   const personSlug = str(input.personSlug, 100);
   if (personSlug && !SLUG.test(personSlug)) throw new HttpError(400, "Choose your profile from the list.");
   const id = randomId();
   const res = await ctx.db
     .prepare(
-      `INSERT INTO users (id, email, name, role_id, person_slug, status, password_hash, created_at, updated_at)
+      `INSERT INTO users (id, username, name, role_id, person_slug, status, password_hash, created_at, updated_at)
        SELECT ?, ?, ?, 'admin', ?, 'active', ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM users)`,
     )
-    .bind(id, email, name, personSlug || null, await hashPassword(password, iterationsFrom(ctx.env.PASSWORD_HASH_ITERATIONS)), ctx.now, ctx.now)
+    .bind(id, username, name, personSlug || null, await hashPassword(password, iterationsFrom(ctx.env.PASSWORD_HASH_ITERATIONS)), ctx.now, ctx.now)
     .run();
   if (!res.meta?.changes) throw new HttpError(404, "Setup has already been completed.");
-  await audit(ctx, "setup.completed", email, "", { id, name });
+  await audit(ctx, "setup.completed", username, "", { id, name });
   const { cookie, csrf } = await startSession(ctx, id);
   return json({ ok: true, csrf }, 200, { "Set-Cookie": cookie });
 }
@@ -80,10 +82,10 @@ export async function setup(ctx: Ctx) {
 export async function login(ctx: Ctx) {
   if (!(await rateLimit(ctx, `login:${ctx.ip}`, 20, 15 * 60_000))) throw new HttpError(429, "Too many sign-in attempts. Try again in 15 minutes.");
   const input = await body(ctx);
-  const email = str(input.email, 200).toLowerCase();
+  const username = cleanUsername(input.username);
   const password = typeof input.password === "string" ? input.password.slice(0, 256) : "";
-  const user = email ? await ctx.db.prepare("SELECT * FROM users WHERE email = ?").bind(email).first<UserRow>() : null;
-  const wrong = new HttpError(401, "That email address or password is wrong.");
+  const user = username ? await ctx.db.prepare("SELECT * FROM users WHERE username = ?").bind(username).first<UserRow>() : null;
+  const wrong = new HttpError(401, "That username or password is wrong.");
   if (!user || user.status !== "active" || !user.password_hash) {
     await verifyPassword(password, await dummyHash(iterationsFrom(ctx.env.PASSWORD_HASH_ITERATIONS)));
     throw wrong;
@@ -93,7 +95,7 @@ export async function login(ctx: Ctx) {
     const failures = user.failed_logins + 1;
     if (failures >= LOCK_AFTER) {
       await ctx.db.prepare("UPDATE users SET failed_logins = 0, locked_until = ? WHERE id = ?").bind(ctx.now + LOCK_MINUTES * 60_000, user.id).run();
-      await audit(ctx, "login.locked", user.email, `Locked for ${LOCK_MINUTES} minutes after ${LOCK_AFTER} wrong passwords`, null);
+      await audit(ctx, "login.locked", user.username, `Locked for ${LOCK_MINUTES} minutes after ${LOCK_AFTER} wrong passwords`, null);
     } else {
       await ctx.db.prepare("UPDATE users SET failed_logins = ? WHERE id = ?").bind(failures, user.id).run();
     }
@@ -101,7 +103,7 @@ export async function login(ctx: Ctx) {
   }
   await ctx.db.prepare("UPDATE users SET failed_logins = 0, locked_until = 0 WHERE id = ?").bind(user.id).run();
   const { cookie, csrf } = await startSession(ctx, user.id);
-  await audit(ctx, "login", user.email, "", { id: user.id, name: user.name });
+  await audit(ctx, "login", user.username, "", { id: user.id, name: user.name });
   return json({ ok: true, csrf }, 200, { "Set-Cookie": cookie });
 }
 
@@ -117,12 +119,12 @@ export async function changePassword(ctx: Ctx) {
   if (!row || !(await verifyPassword(typeof input.current === "string" ? input.current.slice(0, 256) : "", row.password_hash))) {
     throw new HttpError(400, "Your current password is wrong.");
   }
-  const password = checkPassword(input.password, user.name, user.email);
+  const password = checkPassword(input.password, user.name, user.username);
   await ctx.db.batch([
     ctx.db.prepare("UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?").bind(await hashPassword(password, iterationsFrom(ctx.env.PASSWORD_HASH_ITERATIONS)), ctx.now, user.id),
     ctx.db.prepare("DELETE FROM sessions WHERE user_id = ? AND id != ?").bind(user.id, ctx.sessionId),
   ]);
-  await audit(ctx, "password.changed", user.email);
+  await audit(ctx, "password.changed", user.username);
   return json({ ok: true });
 }
 
@@ -132,18 +134,18 @@ async function findToken(ctx: Ctx, token: string) {
   if (!token || token.length > 100) return null;
   return ctx.db
     .prepare(
-      `SELECT t.id, t.kind, t.user_id, u.name, u.email, u.status FROM tokens t JOIN users u ON u.id = t.user_id
+      `SELECT t.id, t.kind, t.user_id, u.name, u.username, u.status FROM tokens t JOIN users u ON u.id = t.user_id
        WHERE t.id = ? AND t.used_at IS NULL AND t.expires_at > ? AND u.status != 'disabled'`,
     )
     .bind(await sha256(token), ctx.now)
-    .first<{ id: string; kind: string; user_id: string; name: string; email: string; status: string }>();
+    .first<{ id: string; kind: string; user_id: string; name: string; username: string; status: string }>();
 }
 
 export async function checkLink(ctx: Ctx) {
   if (!(await rateLimit(ctx, `accept:${ctx.ip}`, 30, 15 * 60_000))) throw new HttpError(429, "Too many attempts. Try again in 15 minutes.");
   const t = await findToken(ctx, str((await body(ctx)).token, 100));
   if (!t) throw new HttpError(404, "This link has expired or has already been used. Ask an admin for a new one.");
-  return json({ kind: t.kind, name: t.name, email: t.email });
+  return json({ kind: t.kind, name: t.name, username: t.username });
 }
 
 export async function acceptLink(ctx: Ctx) {
@@ -151,7 +153,7 @@ export async function acceptLink(ctx: Ctx) {
   const input = await body(ctx);
   const t = await findToken(ctx, str(input.token, 100));
   if (!t) throw new HttpError(404, "This link has expired or has already been used. Ask an admin for a new one.");
-  const password = checkPassword(input.password, t.name, t.email);
+  const password = checkPassword(input.password, t.name, t.username);
   const used = await ctx.db.prepare("UPDATE tokens SET used_at = ? WHERE id = ? AND used_at IS NULL").bind(ctx.now, t.id).run();
   if (!used.meta?.changes) throw new HttpError(404, "This link has already been used.");
   await ctx.db.batch([
@@ -159,7 +161,7 @@ export async function acceptLink(ctx: Ctx) {
     ctx.db.prepare("UPDATE tokens SET used_at = ? WHERE user_id = ? AND used_at IS NULL").bind(ctx.now, t.user_id),
     ctx.db.prepare("DELETE FROM sessions WHERE user_id = ?").bind(t.user_id),
   ]);
-  await audit(ctx, t.kind === "invite" ? "invite.accepted" : "password.reset", t.email, "", { id: t.user_id, name: t.name });
+  await audit(ctx, t.kind === "invite" ? "invite.accepted" : "password.reset", t.username, "", { id: t.user_id, name: t.name });
   const { cookie, csrf } = await startSession(ctx, t.user_id);
   return json({ ok: true, csrf }, 200, { "Set-Cookie": cookie });
 }
@@ -211,7 +213,7 @@ export async function listUsers(ctx: Ctx) {
   requirePerm(ctx, "staff.manage");
   const { results } = await ctx.db
     .prepare(
-      `SELECT u.id, u.email, u.name, u.role_id AS roleId, r.name AS roleName, u.person_slug AS personSlug, u.status, u.locked_until AS lockedUntil, u.created_at AS createdAt,
+      `SELECT u.id, u.username, u.name, u.role_id AS roleId, r.name AS roleName, u.person_slug AS personSlug, u.status, u.locked_until AS lockedUntil, u.created_at AS createdAt,
         (SELECT MAX(expires_at) FROM tokens t WHERE t.user_id = u.id AND t.used_at IS NULL AND t.expires_at > ?) AS linkExpiresAt
        FROM users u JOIN roles r ON r.id = u.role_id ORDER BY u.name COLLATE NOCASE`,
     )
@@ -224,21 +226,22 @@ export async function createUser(ctx: Ctx) {
   const actor = requirePerm(ctx, "staff.manage");
   const input = await body(ctx);
   const name = str(input.name, 100);
-  const email = str(input.email, 200).toLowerCase();
   const personSlug = str(input.personSlug, 100);
   if (!name) throw new HttpError(400, "Enter their name.");
-  if (!isEmail(email)) throw new HttpError(400, "Enter a valid email address. It's only used to sign in.");
+  const username = cleanUsername(input.username) || cleanUsername(name);
+  const bad = usernameProblem(username);
+  if (bad) throw new HttpError(400, bad);
   if (personSlug && !SLUG.test(personSlug)) throw new HttpError(400, "Choose their profile from the list.");
   const r = await role(ctx, str(input.roleId, 100));
   if (!within(actor, permissionsOf(r))) throw new HttpError(403, "You can't give someone a role with permissions you don't have.");
-  if (await ctx.db.prepare("SELECT 1 AS x FROM users WHERE email = ?").bind(email).first()) throw new HttpError(409, "Someone already has an account with that email address.");
+  if (await ctx.db.prepare("SELECT 1 AS x FROM users WHERE username = ?").bind(username).first()) throw new HttpError(409, "Someone already has that username. Choose another.");
   const id = randomId();
   await ctx.db
-    .prepare("INSERT INTO users (id, email, name, role_id, person_slug, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 'invited', ?, ?)")
-    .bind(id, email, name, r.id, personSlug || null, ctx.now, ctx.now)
+    .prepare("INSERT INTO users (id, username, name, role_id, person_slug, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 'invited', ?, ?)")
+    .bind(id, username, name, r.id, personSlug || null, ctx.now, ctx.now)
     .run();
   const link = await issueLink(ctx, id, "invite");
-  await audit(ctx, "user.invited", email, { role: r.name, profile: personSlug || null });
+  await audit(ctx, "user.invited", username, { role: r.name, profile: personSlug || null });
   return json({ id, ...link });
 }
 
@@ -248,6 +251,7 @@ export async function updateUser(ctx: Ctx, id: string) {
   const input = await body(ctx);
   const changes: Record<string, unknown> = {};
   let name = row.name;
+  let username = row.username;
   let roleId = row.role_id;
   let personSlug = row.person_slug;
   let status = row.status;
@@ -255,6 +259,14 @@ export async function updateUser(ctx: Ctx, id: string) {
   if (input.name !== undefined) {
     name = str(input.name, 100);
     if (!name) throw new HttpError(400, "Enter their name.");
+  }
+  if (input.username !== undefined) {
+    username = cleanUsername(input.username);
+    if (username !== row.username) {
+      const bad = usernameProblem(username);
+      if (bad) throw new HttpError(400, bad);
+      if (await ctx.db.prepare("SELECT 1 AS x FROM users WHERE username = ? AND id != ?").bind(username, id).first()) throw new HttpError(409, "Someone already has that username. Choose another.");
+    }
   }
   if (input.personSlug !== undefined) {
     personSlug = str(input.personSlug, 100) || null;
@@ -280,14 +292,15 @@ export async function updateUser(ctx: Ctx, id: string) {
     if (status !== row.status) changes.status = status;
   }
   if (name !== row.name) changes.name = name;
+  if (username !== row.username) changes.username = username;
   if (personSlug !== row.person_slug) changes.profile = personSlug;
 
   await ctx.db
-    .prepare("UPDATE users SET name = ?, role_id = ?, person_slug = ?, status = ?, updated_at = ? WHERE id = ?")
-    .bind(name, roleId, personSlug, status, ctx.now, id)
+    .prepare("UPDATE users SET name = ?, username = ?, role_id = ?, person_slug = ?, status = ?, updated_at = ? WHERE id = ?")
+    .bind(name, username, roleId, personSlug, status, ctx.now, id)
     .run();
   if (status === "disabled" || roleId !== row.role_id) await ctx.db.prepare("DELETE FROM sessions WHERE user_id = ?").bind(id).run();
-  if (Object.keys(changes).length) await audit(ctx, "user.updated", row.email, changes);
+  if (Object.keys(changes).length) await audit(ctx, "user.updated", row.username, changes);
   return json({ ok: true });
 }
 
@@ -297,7 +310,7 @@ export async function userLink(ctx: Ctx, id: string) {
   if (row.status === "disabled") throw new HttpError(409, "Enable the account first.");
   const kind = row.password_hash ? "reset" : "invite";
   const link = await issueLink(ctx, id, kind);
-  await audit(ctx, kind === "invite" ? "user.invite_resent" : "user.reset_link", row.email);
+  await audit(ctx, kind === "invite" ? "user.invite_resent" : "user.reset_link", row.username);
   return json({ kind, ...link });
 }
 
@@ -312,23 +325,23 @@ export async function deleteUser(ctx: Ctx, id: string) {
     ctx.db.prepare("DELETE FROM pending_edits WHERE submitted_by = ?").bind(id),
     ctx.db.prepare("DELETE FROM users WHERE id = ?").bind(id),
   ]);
-  await audit(ctx, "user.deleted", row.email);
+  await audit(ctx, "user.deleted", row.username);
   return json({ ok: true });
 }
 
 /** Ends the sessions of accounts linked to a profile marked inactive or departed (keeping at least one admin). */
 export async function disableAccountsFor(ctx: Ctx, personSlug: string) {
   const { results } = await ctx.db
-    .prepare("SELECT u.id, u.email, r.is_admin FROM users u JOIN roles r ON r.id = u.role_id WHERE u.person_slug = ? AND u.status != 'disabled'")
+    .prepare("SELECT u.id, u.username, r.is_admin FROM users u JOIN roles r ON r.id = u.role_id WHERE u.person_slug = ? AND u.status != 'disabled'")
     .bind(personSlug)
-    .all<{ id: string; email: string; is_admin: number }>();
+    .all<{ id: string; username: string; is_admin: number }>();
   for (const u of results) {
     if (u.is_admin && (await otherActiveAdmins(ctx, u.id)) === 0) continue;
     await ctx.db.batch([
       ctx.db.prepare("UPDATE users SET status = 'disabled', updated_at = ? WHERE id = ?").bind(ctx.now, u.id),
       ctx.db.prepare("DELETE FROM sessions WHERE user_id = ?").bind(u.id),
     ]);
-    await audit(ctx, "user.disabled", u.email, "Their profile was marked inactive or departed");
+    await audit(ctx, "user.disabled", u.username, "Their profile was marked inactive or departed");
   }
 }
 

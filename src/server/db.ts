@@ -94,6 +94,9 @@ export const MIGRATIONS: string[][] = [
     )`,
     `CREATE INDEX IF NOT EXISTS pending_status ON pending_edits(status)`,
   ],
+  // Accounts sign in with a username instead of an email address. Existing
+  // addresses become usernames, which their owners can then change.
+  [`ALTER TABLE users RENAME COLUMN email TO username`],
 ];
 
 const migrated = new WeakSet<D1Database>();
@@ -105,7 +108,13 @@ export async function migrate(db: D1Database): Promise<void> {
   const row = await db.prepare("SELECT MAX(version) AS v FROM schema_version").first<{ v: number | null }>();
   const current = row?.v ?? 0;
   for (let i = current; i < MIGRATIONS.length; i++) {
-    await db.batch([...MIGRATIONS[i].map((sql) => db.prepare(sql)), db.prepare("INSERT INTO schema_version (version) VALUES (?)").bind(i + 1)]);
+    try {
+      await db.batch([...MIGRATIONS[i].map((sql) => db.prepare(sql)), db.prepare("INSERT INTO schema_version (version) VALUES (?)").bind(i + 1)]);
+    } catch (e) {
+      // Another request may have applied this step at the same moment.
+      const now = await db.prepare("SELECT MAX(version) AS v FROM schema_version").first<{ v: number | null }>();
+      if ((now?.v ?? 0) <= i) throw e;
+    }
   }
   migrated.add(db);
 }

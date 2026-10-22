@@ -150,7 +150,7 @@ export function site(envOverrides: Partial<Env> = {}) {
   return { env, repo, clock, browser };
 }
 
-export const ADMIN = { name: "Marty Farrell", email: "marty@example.com", password: "a long and unusual passphrase", personSlug: "marty-farrell" };
+export const ADMIN = { name: "Marty Farrell", username: "Marty Farrell", password: "a long and unusual passphrase", personSlug: "marty-farrell" };
 
 /** A site with its first admin signed in. */
 export async function withAdmin(envOverrides: Partial<Env> = {}) {
@@ -162,7 +162,7 @@ export async function withAdmin(envOverrides: Partial<Env> = {}) {
 }
 
 /** Invites someone with the given role and has them accept, returning their signed-in browser. */
-export async function invite(s: Awaited<ReturnType<typeof withAdmin>>, who: { name: string; email: string; roleId: string; personSlug?: string }, ip = "198.51.100.7") {
+export async function invite(s: Awaited<ReturnType<typeof withAdmin>>, who: { name: string; username?: string; roleId: string; personSlug?: string }, ip = "198.51.100.7") {
   const res = await s.admin.post("users", who);
   if (res.status !== 200) throw new Error(`invite failed: ${JSON.stringify(res.json)}`);
   const token = String(res.json.link).split("#/accept/")[1];

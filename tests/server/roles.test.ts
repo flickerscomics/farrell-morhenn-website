@@ -34,11 +34,11 @@ describe("roles and permissions", () => {
   it("nobody can hand out permissions they don't have", async () => {
     const s = await withAdmin();
     const role = await s.admin.post("roles", { name: "Role manager", permissions: ["roles.manage", "staff.manage", "audit.view"] });
-    const rm = await invite(s, { name: "Rolf Manning", email: "rolf@example.com", roleId: String(role.json.id) });
+    const rm = await invite(s, { name: "Rolf Manning", username: "rolf", roleId: String(role.json.id) });
     expect((await rm.browser.post("roles", { name: "Sneaky", permissions: ["settings.edit"] })).status).toBe(403);
     expect((await rm.browser.post("roles", { name: "Auditors", permissions: ["audit.view"] })).status).toBe(200);
     expect((await rm.browser.patch("roles/press-editor", { permissions: ["press.write"] })).status).toBe(403);
-    expect((await rm.browser.post("users", { name: "New Admin", email: "na@example.com", roleId: "admin" })).status).toBe(403);
+    expect((await rm.browser.post("users", { name: "New Admin", username: "New Admin", roleId: "admin" })).status).toBe(403);
     const admins = (await rm.browser.get("users")).json.users as { id: string; roleId: string }[];
     const adminId = admins.find((u) => u.roleId === "admin")!.id;
     expect((await rm.browser.patch(`users/${adminId}`, { status: "disabled" })).status).toBe(403);
@@ -53,7 +53,7 @@ describe("roles and permissions", () => {
     expect((await s.admin.patch(`users/${me.id}`, { status: "disabled" })).status).toBe(403);
     expect((await s.admin.del(`users/${me.id}`)).status).toBe(403);
 
-    const second = await invite(s, { name: "Gideon Morhenn", email: "gideon@example.com", roleId: "admin" });
+    const second = await invite(s, { name: "Gideon Morhenn", username: "gideon", roleId: "admin" });
     expect((await second.browser.patch(`users/${me.id}`, { roleId: "staff" })).status).toBe(200);
     expect((await s.admin.get("users")).status).toBe(401); // role changes end the person's sessions
     const meNow = (await second.browser.get("users")).json.users as { id: string; roleId: string }[];
@@ -64,7 +64,7 @@ describe("roles and permissions", () => {
     const s = await withAdmin();
     const role = await s.admin.post("roles", { name: "Interns", permissions: ["profile.edit_own"] });
     const id = String(role.json.id);
-    const intern = await invite(s, { name: "Ida Intern", email: "ida@example.com", roleId: id });
+    const intern = await invite(s, { name: "Ida Intern", username: "ida", roleId: id });
     expect((await s.admin.del(`roles/${id}`)).status).toBe(409);
     await s.admin.patch(`users/${intern.id}`, { roleId: "staff" });
     expect((await s.admin.del(`roles/${id}`)).status).toBe(200);
@@ -72,7 +72,7 @@ describe("roles and permissions", () => {
 
   it("staff only see what their role allows", async () => {
     const s = await withAdmin();
-    const nina = await invite(s, { name: "Nina Bernardi", email: "nina@example.com", roleId: "staff", personSlug: "nina-bernardi" });
+    const nina = await invite(s, { name: "Nina Bernardi", username: "nina", roleId: "staff", personSlug: "nina-bernardi" });
     expect((await nina.browser.get("users")).status).toBe(403);
     expect((await nina.browser.get("roles")).status).toBe(403);
     expect((await nina.browser.get("audit")).status).toBe(403);
