@@ -9,6 +9,7 @@ order: 4
 isLeadership: false
 isFeatured: true
 acceptsConsultations: true
+portrait: /images/people/Serious 3D Professional Portrait.png
 shortBio: Dick Sullivan is a superstar criminal defence attorney, he has your
   back no matter what!
 practiceAreas:
