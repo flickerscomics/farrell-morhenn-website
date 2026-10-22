@@ -1,10 +1,9 @@
-import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { BBCode } from "@/components/bbcode";
 import { bbcodeToText, parseBBCode, safeHref } from "@/lib/bbcode";
 
-const html = (source: string) => renderToStaticMarkup(createElement(BBCode, { className: "x", children: source })).replace(/^<div class="x">|<\/div>$/g, "");
+const html = (source: string) => renderToStaticMarkup(BBCode({ className: "x", children: source })).replace(/^<div class="x">|<\/div>$/g, "");
 
 describe("BBCode formatting", () => {
   it("formats text styles", () => {
