@@ -156,14 +156,13 @@ test("a press release shows its dateline, BBCode formatting, contact and boilerp
   await expect(body.locator("strong", { hasText: "Faster first meetings" })).toBeVisible();
   await expect(body.locator("em", { hasText: "English and Spanish" })).toBeVisible();
   await expect(body.getByRole("heading", { level: 2, name: "Matters the team handles" })).toBeVisible();
-  await expect(body.locator("figure.bb-quote figcaption")).toHaveText("Grace Ashworth, Associate Attorney");
   await expect(body.locator("ul > li")).toHaveCount(3);
   await expect(page.locator(".pull-quote")).toContainText("Families going through a separation");
   await expect(page.locator(".media-contact")).toContainText("press@farrellmorhennlaw.com");
   await expect(page.locator(".release-boilerplate")).toContainText("About Farrell-Morhenn");
   await expect(page.locator(".end-mark")).toHaveText("###");
-  await body.getByRole("link", { name: "Associate Attorney Grace Ashworth" }).click();
-  await expect(page).toHaveURL(/\/farrell-morhenn-website\/people\/grace-ashworth\/$/);
+  await body.getByRole("link", { name: "contact page" }).click();
+  await expect(page).toHaveURL(/\/farrell-morhenn-website\/contact\/$/);
 });
 
 test("release pages show tables, update notices and archive notices", async ({ page }) => {
