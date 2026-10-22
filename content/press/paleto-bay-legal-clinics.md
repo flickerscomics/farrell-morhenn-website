@@ -22,7 +22,7 @@ imageCaption: ""
 attachments: []
 mediaContact: lucia-moretti
 people:
-  - theo-okafor
+  - richard-sullivan
 practiceAreas:
   - consultation-and-document-drafting
 related:

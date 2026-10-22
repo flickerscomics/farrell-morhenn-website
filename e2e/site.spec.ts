@@ -52,7 +52,7 @@ test("people directory filters in the browser and keeps the filter in the URL", 
   await page.goto("people/?role=partners");
   await expect(page.getByRole("link", { name: /Marty Farrell/ })).toBeVisible();
   await expect(page.getByRole("link", { name: /Gideon Morhenn/ })).toBeVisible();
-  await expect(page.getByRole("link", { name: /Theo Okafor/ })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: /Dick Sullivan/ })).toHaveCount(0);
 });
 
 test("profiles explain how to book, except for staff on leave", async ({ page }) => {
