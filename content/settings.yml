@@ -1,6 +1,6 @@
 firmName: Farrell-Morhenn
 shortName: Farrell-Morhenn
-tagline: Get charged, get Dick, get off!
+tagline: In peril? Call Farrell!
 colorPrimary: "#15233b"
 colorAccent: "#a8864f"
 phone: "19002930"
@@ -52,6 +52,18 @@ consultationTypes:
   - Follow-up meeting
   - Court preparation
 appointmentMinutes: 45
+confidentialityNotice: Please do not send original documents or confidential material until an attorney has confirmed that the firm can act for you.
+heroEyebrow: Attorneys at law · Los Santos
+heroTitle: In peril? Call Farrell!
+heroText: Farrell-Morhenn represents individuals and businesses across Los Santos and Blaine County in criminal, civil, family and commercial matters. We tell you where you stand, and then we go to work.
+homeSections:
+  showPracticeAreas: true
+  showAttorneys: true
+  showProcess: true
+  showArticles: true
+  showCareers: true
+  showContact: true
+  showPress: true
 navigation:
   - label: About
     href: /about
@@ -69,17 +81,6 @@ navigation:
     href: /contact
 socialLinks: []
 footerText: The information on this website is general information only and is not legal advice. Contacting the firm does not create an attorney-client relationship.
-heroEyebrow: Attorneys at law · Los Santos
-heroTitle: In peril? Call Farrell!
-heroText: Farrell-Morhenn represents individuals and businesses across Los Santos and Blaine County in criminal, civil, family and commercial matters. We tell you where you stand, and then we go to work.
-homeSections:
-  showPracticeAreas: true
-  showAttorneys: true
-  showProcess: true
-  showArticles: true
-  showCareers: true
-  showContact: true
-  showPress: true
 press:
   contactName: Press Office
   contactTitle: Farrell-Morhenn
@@ -89,4 +90,3 @@ press:
   boilerplate: |-
     [b]About Farrell-Morhenn[/b]
     Farrell-Morhenn is a law firm based at the Wiwang Office Complex in Los Santos. Its attorneys represent individuals and businesses across Los Santos and Blaine County in criminal, civil, family and commercial matters. Find out more at [url=/about]the firm's website[/url].
-confidentialityNotice: Please do not send original documents or confidential material until an attorney has confirmed that the firm can act for you.
