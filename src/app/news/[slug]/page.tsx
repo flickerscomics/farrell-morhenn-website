@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { ArticleView } from "@/components/article-view";
 import { ArticleCard } from "@/components/cards";
 import { Breadcrumbs } from "@/components/ui";
-import { absoluteUrl, article, articles, authorOf, relatedArticles } from "@/lib/content";
+import { absoluteUrl, article, articles, authorOf, relatedArticles, shareImages } from "@/lib/content";
 
 export const dynamicParams = false;
 
@@ -22,8 +22,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: a.title,
     description: a.summary,
     alternates: { canonical: absoluteUrl(`/news/${a.slug}/`) },
-    openGraph: { type: "article", title: a.title, description: a.summary, publishedTime: a.publishedOn, authors: author ? [author.name] : undefined, tags: a.tags },
-    twitter: { card: "summary", title: a.title, description: a.summary },
+    openGraph: { type: "article", title: a.title, description: a.summary, publishedTime: a.publishedOn, authors: author ? [author.name] : undefined, tags: a.tags, images: shareImages() },
+    twitter: { card: "summary_large_image", title: a.title, description: a.summary, images: shareImages() },
   };
 }
 

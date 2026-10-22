@@ -721,8 +721,11 @@ a.tag:hover {
   flex-shrink: 0;
 }
 .brand-logo-img {
-  height: 44px;
-  width: auto;
+  height: 56px;
+  width: 56px;
+  flex-shrink: 0;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.18));
 }
 .brand-text {
   display: flex;
@@ -2108,4 +2111,28 @@ dialog.confirm-dialog h2 {
 .admin-inline-btn {
   padding-left: 0;
   margin-top: 0.15rem;
+}
+.admin-seal {
+  display: block;
+  margin: 0 auto 1rem;
+  filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.2));
+}
+.bb-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: var(--line-soft);
+}
+.bb-toolbar + .textarea {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.bb-toolbar .btn {
+  min-width: 2.2rem;
+  padding-inline: 0.55rem;
 }

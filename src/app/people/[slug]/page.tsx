@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { ArticleCard } from "@/components/cards";
 import { BBCode } from "@/components/bbcode";
 import { Markdown, PageHero, Portrait } from "@/components/ui";
-import { absoluteUrl, articles, isBookable, people, person, practiceArea, site } from "@/lib/content";
+import { absoluteUrl, articles, isBookable, people, person, practiceArea, site, shareImages } from "@/lib/content";
 import { EmailLink } from "@/components/email-link";
 import { STAFF_ROLE_LABELS } from "@/lib/labels";
 
@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: `${p.fullName}, ${p.title}`,
     description: p.shortBio,
     alternates: { canonical: absoluteUrl(`/people/${p.slug}/`) },
-    openGraph: { title: p.fullName, description: p.shortBio, type: "profile" },
+    openGraph: { title: p.fullName, description: p.shortBio, type: "profile", images: shareImages(p.portrait ? { url: p.portrait, alt: `Portrait of ${p.fullName}` } : undefined) },
   };
 }
 

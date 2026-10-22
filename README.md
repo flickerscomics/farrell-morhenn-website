@@ -18,7 +18,7 @@ The menu on the left has these sections:
 
 | Section | What you can change |
 | --- | --- |
-| **Firm settings** | Firm name, tagline, colours, phone, email, where email links go (a web page instead of an email program), address, office hours, contact methods, consultation types, homepage title and text, which homepage sections appear, the main menu, footer notice, press office contact and the "About the firm" paragraph for press releases |
+| **Firm settings** | Firm name, tagline, logo, colours, phone, email, where email links go (a web page instead of an email program), address, office hours, contact methods, consultation types, homepage title and text, which homepage sections appear, the main menu, footer notice, press office contact and the "About the firm" paragraph for press releases |
 | **People** | Attorneys and staff: name, title, role, status, portrait, biography, practice areas, languages, contact details, qualifications. Add someone with **Add an entry**. |
 | **Practice areas** | Each practice area's description, matters handled, services, and whether it's shown or featured |
 | **News & articles** | Write, edit or schedule articles. Tick **Draft** to keep one hidden. |
@@ -106,7 +106,9 @@ In Cloudflare, under **Workers & Pages → farrell-morhenn → Settings**:
 
 Optional settings: `GITHUB_REPO` (default `flickerscomics/farrell-morhenn-website`), `GITHUB_BRANCH` (default `main`), and `PASSWORD_HASH_ITERATIONS` (default and maximum 100000). On the Workers **free plan** a request gets about 10 ms of CPU time. If signing in fails with a Cloudflare "exceeded resource limits" (1102) error, either lower `PASSWORD_HASH_ITERATIONS` (minimum 10000) or move to the Workers Paid plan.
 
-Every save is a commit, and every commit is a Cloudflare build (500 a month on the free plan), so make several changes before saving where you can.
+Every save is a commit, and most commits are a Cloudflare build (500 a month on the free plan), so make several changes before saving where you can. To save builds, the admin area marks commits that can't change what visitors see with `[skip ci]`, which Cloudflare and GitHub skip: saving, adding or deleting a **draft** press release, article or vacancy, and **uploading** an image (the page using it rebuilds when saved). **Approve all** on the Approvals page publishes every waiting profile change in a single commit.
+
+BBCode text boxes (press releases, biographies, the press boilerplate) have **formatting buttons**, Ctrl/Cmd+B, I and U shortcuts, and an **Image** button that uploads a picture and inserts it after the current paragraph.
 
 ## What the site doesn't do
 

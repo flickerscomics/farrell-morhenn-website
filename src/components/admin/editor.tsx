@@ -4,13 +4,14 @@
 // definitions in .pages.yml (sent by the API), so every section Pages CMS can
 // edit is editable here too.
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BBCode } from "@/components/bbcode";
 import { Markdown } from "@/components/ui";
 import { defaults, type Field } from "@/server/schema";
 import { api, fileToBase64, when, type SectionInfo } from "./api";
 import { go } from "./app";
 import { Done, Problem } from "./auth-views";
+import { BBCodeToolbar, bbcodeShortcut } from "./bbcode-toolbar";
 
 type Raw = Record<string, unknown>;
 
@@ -276,6 +277,7 @@ function SingleInput({ field, path, section, value, disabled, onChange, id }: Fi
   const text = typeof value === "string" ? value : typeof value === "number" ? String(value) : "";
   const options = useOptions(field.type === "reference" ? field.options?.collection : undefined);
   const [preview, setPreview] = useState(false);
+  const box = useRef<HTMLTextAreaElement>(null);
   switch (field.type) {
     case "number":
       return <input id={id} className="input" type="number" value={text} disabled={disabled} onChange={(e) => onChange(e.target.value === "" ? "" : Number(e.target.value))} />;
@@ -341,9 +343,23 @@ function SingleInput({ field, path, section, value, disabled, onChange, id }: Fi
     case "text":
     case "rich-text": {
       const kind = BBCODE_FIELDS.has(`${section.name}.${path}`) ? "bbcode" : field.type === "rich-text" ? "markdown" : null;
+      // Pictures in the text go to the same folder as the section's own image field.
+      const imageField = section.fields.find((f) => f.type === "image");
       return (
         <>
-          <textarea id={id} className="textarea" rows={field.type === "rich-text" || kind ? 12 : 4} value={text} disabled={disabled} onChange={(e) => onChange(e.target.value)} />
+          {kind === "bbcode" && !disabled && (
+            <BBCodeToolbar target={box} value={text} onChange={onChange} upload={imageField ? { section: section.name, field: imageField.name } : undefined} />
+          )}
+          <textarea
+            ref={box}
+            id={id}
+            className="textarea"
+            rows={field.type === "rich-text" || kind ? 12 : 4}
+            value={text}
+            disabled={disabled}
+            onChange={(e) => onChange(e.target.value)}
+            onKeyDown={kind === "bbcode" ? (e) => bbcodeShortcut(e, text, onChange) : undefined}
+          />
           {kind && (
             <div className="row">
               <span className="help">{kind === "bbcode" ? "Formatting: BBCode, e.g. [b]bold[/b], [i]italic[/i], [list][*]item[/list]." : "Formatting: Markdown, e.g. **bold**, *italic*, - list item."}</span>

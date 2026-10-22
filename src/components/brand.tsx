@@ -44,7 +44,7 @@ export function Brand({
   return (
     <Link href="/" className="brand" aria-label={`${firmName} — home`}>
       {logoUrl ? (
-        <img src={logoUrl} alt="" className="brand-logo-img" />
+        <img src={logoUrl} alt="" className="brand-logo-img" width={56} height={56} />
       ) : (
         <BrandMark initials={initialsOf(shortName || firmName)} />
       )}

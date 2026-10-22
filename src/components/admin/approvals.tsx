@@ -57,6 +57,21 @@ export function Approvals({ me, sections }: { me: Me; sections: SectionInfo[] })
     }
   }
 
+  async function approveAll(count: number) {
+    if (!window.confirm(`Approve and publish all ${count} changes? They go live together in one update.`)) return;
+    setBusy("all");
+    setError("");
+    try {
+      const r = await api<{ approved: number; skipped: string[] }>("POST", "approvals/approve-all");
+      await load();
+      if (r.skipped.length) setError(`Approved ${r.approved}. These couldn't be applied and are still waiting: ${r.skipped.join(", ")}.`);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy("");
+    }
+  }
+
   const labelOf = (c: Change, field: string) => (sections.find((s) => s.name === c.section)?.fields.find((f) => f.name === field)?.label ?? field).replace(/\s*\(.*\)$/, "");
 
   if (!data) return error ? <Problem message={error} /> : <p className="muted">Loading…</p>;
@@ -65,6 +80,14 @@ export function Approvals({ me, sections }: { me: Me; sections: SectionInfo[] })
       <h1 style={{ fontSize: "1.8rem", margin: 0 }}>{data.canApprove ? "Profile changes waiting for approval" : "My submitted changes"}</h1>
       <Problem message={error} />
       {data.pending.length === 0 && <p className="muted">Nothing is waiting for approval.</p>}
+      {data.canApprove && data.pending.filter((c) => c.submittedById !== me.id).length > 1 && (
+        <div className="row">
+          <button className="btn btn-primary" disabled={!!busy} onClick={() => void approveAll(data.pending.filter((c) => c.submittedById !== me.id).length)}>
+            Approve all ({data.pending.filter((c) => c.submittedById !== me.id).length})
+          </button>
+          <span className="small muted">Publishes them together, as one website update.</span>
+        </div>
+      )}
       {data.pending.map((c) => (
         <article key={c.id} className="card stack">
           <div>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { featuredPracticeAreas, site } from "@/lib/content";
+import { asset } from "@/lib/env";
 import { timeZoneName } from "@/lib/time";
 import { Brand } from "./brand";
 import { EmailLink } from "./email-link";
@@ -28,7 +29,7 @@ export function SiteHeader() {
       </div>
       <header className="site-header">
         <div className="container">
-          <Brand firmName={site.firmName} shortName={site.shortName} logoUrl={null} />
+          <Brand firmName={site.firmName} shortName={site.shortName} logoUrl={site.logo ? asset(site.logo) : null} />
           <MainNav links={site.navigation} />
           <div className="header-actions">
             <Link href="/contact" className="btn btn-primary btn-sm btn-header-cta">
@@ -49,7 +50,7 @@ export function SiteFooter() {
       <div className="container">
         <div className="footer-grid">
           <div>
-            <Brand firmName={site.firmName} shortName={site.shortName} logoUrl={null} />
+            <Brand firmName={site.firmName} shortName={site.shortName} logoUrl={site.logo ? asset(site.logo) : null} />
             <p style={{ marginTop: "1.25rem", maxWidth: "36ch" }}>{site.tagline}</p>
             <address style={{ fontStyle: "normal" }}>
               {site.addressLines.map((l) => (

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { AdminApp } from "@/components/admin/app";
+import { site } from "@/lib/content";
+import { asset } from "@/lib/env";
 
 export const metadata: Metadata = {
   title: "Staff area",
@@ -7,5 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function AdminPage() {
-  return <AdminApp />;
+  return <AdminApp logo={site.logo ? asset(site.logo) : null} />;
 }

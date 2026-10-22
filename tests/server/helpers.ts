@@ -96,6 +96,14 @@ export class MemoryRepo implements Repo {
     return { sha: next.sha };
   }
 
+  async commitFiles(files: { path: string; text: string | null }[], message: string) {
+    for (const f of files) {
+      if (f.text === null) this.files.delete(f.path);
+      else this.files.set(f.path, { text: f.text, sha: this.sha() });
+    }
+    this.commits.push(message);
+  }
+
   async remove(p: string, sha: string, message: string) {
     const existing = this.files.get(p);
     if (!existing || existing.sha !== sha) throw new ConflictError(p);

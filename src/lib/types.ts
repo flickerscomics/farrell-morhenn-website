@@ -176,6 +176,8 @@ export type Settings = {
   firmName: string;
   shortName: string;
   tagline: string;
+  /** Path of the logo image under /images, or empty for the lettered mark. */
+  logo: string;
   colorPrimary: string;
   colorAccent: string;
   phone: string;

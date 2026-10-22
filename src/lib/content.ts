@@ -73,6 +73,11 @@ export function absoluteUrl(path: string) {
   return `${SITE_URL}${path}`;
 }
 
+/** The firm's link-preview image (src/app/opengraph-image.jpg), for pages that set their own preview details. */
+export function shareImages(image?: { url: string; alt?: string }) {
+  return image ? [{ url: absoluteUrl(image.url), alt: image.alt }] : [{ url: absoluteUrl("/opengraph-image.jpg"), width: 1200, height: 630, alt: `${site.firmName}, attorneys at law` }];
+}
+
 // ─── Practice areas ─────────────────────────────────────────────────────────
 
 export function practiceAreas(): PracticeArea[] {

@@ -167,6 +167,21 @@ function editableFields(s: Section, restricted: string[]): Field[] {
   return s.fields.filter((f) => !restricted.includes(f.name));
 }
 
+/**
+ * Added to a commit message when the change can't be seen on the website, so
+ * Cloudflare skips the rebuild (and GitHub skips the checks). Builds are
+ * limited on the free plan.
+ */
+export const SKIP_BUILD = " [skip ci]";
+
+/** Whether an entry is hidden from visitors: a draft press release, article or vacancy. */
+export function hiddenFromSite(s: Section, v: Raw | null): boolean {
+  if (!v) return true; // doesn't exist (yet)
+  if (s.name === "press" || s.name === "careers") return v.status === "DRAFT";
+  if (s.name === "articles") return v.draft === true;
+  return false;
+}
+
 /** Writes the entry, renaming the file when a collection entry's web address changed. Returns the final path. */
 async function commit(ctx: Ctx, s: Section, path: string, sha: string | undefined, values: Raw, message: string): Promise<string> {
   const repo = ctx.repo();
@@ -232,7 +247,8 @@ export async function save(ctx: Ctx) {
     return json({ ok: true, pending: true, id, file });
   }
 
-  const target = await commit(ctx, s, path, found.sha, next, `Update ${path} (${user.name}, admin area)`);
+  const quiet = hiddenFromSite(s, current) && hiddenFromSite(s, next) ? SKIP_BUILD : "";
+  const target = await commit(ctx, s, path, found.sha, next, `Update ${path} (${user.name}, admin area)${quiet}`);
   if (s.access === "profile") await afterProfileChange(ctx, current, next);
   await audit(ctx, "content.updated", target, { fields: changed });
   return json({ ok: true, file: target.split("/").pop() ?? "" });
@@ -250,7 +266,7 @@ export async function create(ctx: Ctx) {
   }
   const path = `${s.path}/${next.slug}.md`;
   if (await ctx.repo().read(path)) throw new HttpError(409, "Another entry already uses that web address.");
-  await ctx.repo().write(path, textToBase64(serializeFile(s, next)), `Add ${path} (${user.name}, admin area)`);
+  await ctx.repo().write(path, textToBase64(serializeFile(s, next)), `Add ${path} (${user.name}, admin area)${hiddenFromSite(s, next) ? SKIP_BUILD : ""}`);
   await audit(ctx, "content.created", path);
   return json({ ok: true, file: `${next.slug}.md` });
 }
@@ -272,7 +288,7 @@ export async function remove(ctx: Ctx) {
         : can(user, s.access);
   if (!allowed) throw new HttpError(403, "You don't have permission to delete this.");
   if (str(input.sha, 100) !== found.sha) throw new HttpError(409, "Someone else changed this since you opened it. Reload and try again.");
-  await ctx.repo().remove(path, found.sha, `Delete ${path} (${user.name}, admin area)`);
+  await ctx.repo().remove(path, found.sha, `Delete ${path} (${user.name}, admin area)${hiddenFromSite(s, current) ? SKIP_BUILD : ""}`);
   await ctx.db.prepare("UPDATE pending_edits SET status = 'withdrawn', decided_at = ? WHERE path = ? AND status = 'pending'").bind(ctx.now, path).run();
   if (s.access === "profile") await ctx.db.prepare("UPDATE users SET person_slug = NULL WHERE person_slug = ?").bind(String(current.slug ?? slugOfFile(file))).run();
   await audit(ctx, "content.deleted", path);
@@ -330,7 +346,8 @@ export async function upload(ctx: Ctx) {
       .replace(/^-+|-+$/g, "")
       .slice(0, 60) || "upload";
   const path = `${dir}/${base}-${randomToken(4).toLowerCase().replace(/[^a-z0-9]/g, "x")}.${kind}`;
-  await ctx.repo().write(path, bytesToBase64(bytes), `Upload ${path} (${user.name}, admin area)`);
+  // The file only appears once a page using it is saved, and that save rebuilds the site.
+  await ctx.repo().write(path, bytesToBase64(bytes), `Upload ${path} (${user.name}, admin area)${SKIP_BUILD}`);
   await audit(ctx, "file.uploaded", path);
   return json({ path: path.replace(/^public/, "") });
 }
@@ -416,6 +433,62 @@ export async function approve(ctx: Ctx, id: string) {
   await afterProfileChange(ctx, current, next);
   await audit(ctx, "profile.approved", row.path, { submittedBy: row.submitter, fields: Object.keys((JSON.parse(row.changes) as { fields: Raw }).fields) });
   return json({ ok: true });
+}
+
+/** Approves every waiting change (except your own) and publishes them together, so the site rebuilds once. */
+export async function approveAll(ctx: Ctx) {
+  const user = requirePerm(ctx, "profile.approve");
+  const { results } = await ctx.db.prepare(`${PENDING_SELECT} WHERE p.status = 'pending' AND p.submitted_by != ? ORDER BY p.created_at`).bind(user.id).all<PendingRow>();
+  if (results.length === 0) throw new HttpError(404, "There's nothing waiting for you to approve.");
+
+  // Work out every file's new content first, applying changes to the same profile in order.
+  const staged = new Map<string, string | null>();
+  const effects: { before: Raw; after: Raw; row: PendingRow }[] = [];
+  const skipped: string[] = [];
+  for (const row of results) {
+    const s = await section(ctx, row.section);
+    const text = staged.has(row.path) ? staged.get(row.path) : (await ctx.repo().read(row.path))?.text;
+    if (!text) {
+      skipped.push(row.label);
+      continue;
+    }
+    const current = parseFile(s, text);
+    const next = { ...current, ...(JSON.parse(row.changes) as { fields: Raw }).fields };
+    for (const [k, v] of Object.entries(next)) if (v === null) delete next[k];
+    try {
+      checkSpecialFields(s, next);
+    } catch {
+      skipped.push(row.label);
+      continue;
+    }
+    const target = `${s.path}/${next.slug}.md`;
+    if (target !== row.path) {
+      if (staged.get(target) || (!staged.has(target) && (await ctx.repo().read(target)))) {
+        skipped.push(row.label);
+        continue;
+      }
+      staged.set(row.path, null);
+    }
+    staged.set(target, serializeFile(s, next));
+    effects.push({ before: current, after: next, row });
+  }
+  if (effects.length === 0) throw new HttpError(409, "None of the waiting changes could be applied. Open them one at a time to see why.");
+
+  const ids = effects.map((e) => e.row.id);
+  const marks = ids.map(() => "?").join(", ");
+  await ctx.db.prepare(`UPDATE pending_edits SET status = 'approved', decided_by = ?, decided_at = ? WHERE status = 'pending' AND id IN (${marks})`).bind(user.id, ctx.now, ...ids).run();
+  try {
+    const names = [...new Set(effects.map((e) => e.row.label))].join(", ");
+    await ctx.repo().commitFiles([...staged].map(([path, text]) => ({ path, text })), `Approve profile changes for ${names} (approved by ${user.name})`);
+  } catch (e) {
+    await ctx.db.prepare(`UPDATE pending_edits SET status = 'pending', decided_by = NULL, decided_at = NULL WHERE id IN (${marks})`).bind(...ids).run();
+    throw e;
+  }
+  for (const e of effects) {
+    await afterProfileChange(ctx, e.before, e.after);
+    await audit(ctx, "profile.approved", e.row.path, { submittedBy: e.row.submitter, fields: Object.keys((JSON.parse(e.row.changes) as { fields: Raw }).fields) });
+  }
+  return json({ ok: true, approved: effects.length, skipped });
 }
 
 export async function reject(ctx: Ctx, id: string) {

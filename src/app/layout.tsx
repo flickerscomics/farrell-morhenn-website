@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: site.heroText.slice(0, 160),
   applicationName: site.firmName,
   openGraph: { type: "website", siteName: site.firmName, locale: "en_US" },
-  twitter: { card: "summary" },
+  twitter: { card: "summary_large_image" },
   formatDetection: { telephone: false, email: false, address: false },
 };
 

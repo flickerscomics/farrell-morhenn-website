@@ -6,7 +6,10 @@ test("homepage shows the firm and a contact route", async ({ page }) => {
   await page.goto("./");
   await expect(page).toHaveTitle(/Farrell-Morhenn/);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  await expect(page.locator(".brand-mark text").first()).toHaveText("FM");
+  const logo = page.locator(".site-header .brand-logo-img");
+  await expect(logo).toBeVisible();
+  expect(await logo.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /opengraph-image/);
   await page.getByRole("link", { name: "Contact the office" }).first().click();
   await expect(page).toHaveURL(/\/farrell-morhenn-website\/contact\/$/);
   await expect(page.getByRole("heading", { name: "How to reach us" })).toBeVisible();

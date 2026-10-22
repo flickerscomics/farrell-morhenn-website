@@ -177,3 +177,49 @@ describe("GitHub App sign-in", () => {
     expect(createVerify("RSA-SHA256").update(`${h}.${p}`).verify(publicKey, Buffer.from(sig, "base64url"))).toBe(true);
   });
 });
+
+describe("saving builds", () => {
+  it("drafts and uploads don't rebuild the site; publishing does", async () => {
+    const s = await withAdmin();
+    const values = { title: "Draft news", slug: "draft-news", status: "DRAFT", releaseDate: "2026-11-01", summary: "Summary" };
+    await s.admin.post("item", { section: "press", values });
+    expect(s.repo.commits.at(-1)).toMatch(/^Add content\/press\/draft-news\.md .*\[skip ci\]$/);
+    let { item } = await load(s.admin, "press", "draft-news.md");
+    await s.admin.put("item", { section: "press", file: "draft-news.md", sha: item.sha, values: { ...item.values, summary: "Typo fixed" } });
+    expect(s.repo.commits.at(-1)).toMatch(/\[skip ci\]$/);
+    ({ item } = await load(s.admin, "press", "draft-news.md"));
+    await s.admin.put("item", { section: "press", file: "draft-news.md", sha: item.sha, values: { ...item.values, status: "PUBLISHED" } });
+    expect(s.repo.commits.at(-1)).not.toMatch(/skip ci/);
+    ({ item } = await load(s.admin, "press", "draft-news.md"));
+    await s.admin.put("item", { section: "press", file: "draft-news.md", sha: item.sha, values: { ...item.values, status: "DRAFT" } });
+    expect(s.repo.commits.at(-1)).not.toMatch(/skip ci/); // taking a release down must rebuild
+
+    const png = Buffer.from("89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c4890000000d4944415478da63f8ffff3f0005fe02fea7d6a1b20000000049454e44ae426082", "hex").toString("base64");
+    await s.admin.post("upload", { section: "press", field: "image", name: "photo.png", data: png });
+    expect(s.repo.commits.at(-1)).toMatch(/^Upload .*\[skip ci\]$/);
+    const gideon = await load(s.admin, "people", "gideon-morhenn.md");
+    await s.admin.put("item", { section: "people", file: "gideon-morhenn.md", sha: gideon.item.sha, values: { ...gideon.item.values, title: "Partner and Founder" } });
+    expect(s.repo.commits.at(-1)).not.toMatch(/skip ci/);
+  });
+});
+
+describe("approve all", () => {
+  it("publishes every waiting change in one commit, but never your own", async () => {
+    const s = await withAdmin();
+    const nina = await invite(s, { name: "Nina Bernardi", roleId: "staff", personSlug: "nina-bernardi" }, "198.51.100.1");
+    const gideon = await invite(s, { name: "Gideon Morhenn", roleId: "staff", personSlug: "gideon-morhenn" }, "198.51.100.2");
+    for (const [b, file] of [[nina.browser, "nina-bernardi.md"], [gideon.browser, "gideon-morhenn.md"]] as const) {
+      const { item } = await load(b, "people", file);
+      await b.put("item", { section: "people", file, sha: item.sha, values: { ...item.values, shortBio: `New bio for ${file}` } });
+    }
+    const commitsBefore = s.repo.commits.length;
+    const res = await s.admin.post("approvals/approve-all");
+    expect(res.json).toMatchObject({ ok: true, approved: 2, skipped: [] });
+    expect(s.repo.commits.length).toBe(commitsBefore + 1);
+    expect(s.repo.commits.at(-1)).toMatch(/^Approve profile changes for /);
+    expect(s.repo.files.get("content/people/nina-bernardi.md")!.text).toContain("New bio for nina-bernardi.md");
+    expect(s.repo.files.get("content/people/gideon-morhenn.md")!.text).toContain("New bio for gideon-morhenn.md");
+    expect(((await s.admin.get("approvals")).json.pending as unknown[]).length).toBe(0);
+    expect((await nina.browser.post("approvals/approve-all")).status).toBe(403);
+  });
+});

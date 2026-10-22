@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { api, can, setCsrf, type Me, type SectionInfo } from "./api";
-import { AcceptLink, ChangePassword, Login, Setup } from "./auth-views";
+import { AcceptLink, ChangePassword, LogoContext, Login, Setup } from "./auth-views";
 import { Approvals } from "./approvals";
 import { Activity } from "./activity";
 import { Dashboard } from "./dashboard";
@@ -27,7 +27,15 @@ export function go(...parts: string[]) {
   window.location.hash = `#/${parts.map(encodeURIComponent).join("/")}`;
 }
 
-export function AdminApp() {
+export function AdminApp({ logo = null }: { logo?: string | null }) {
+  return (
+    <LogoContext.Provider value={logo}>
+      <AdminScreens />
+    </LogoContext.Provider>
+  );
+}
+
+function AdminScreens() {
   const route = useRoute();
   const [state, setState] = useState<{ loading: boolean; me: Me | null; setupRequired: boolean; error: string }>({ loading: true, me: null, setupRequired: false, error: "" });
   const [sections, setSections] = useState<SectionInfo[]>([]);

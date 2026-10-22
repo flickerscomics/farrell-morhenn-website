@@ -153,6 +153,11 @@ export function loadSettings(): Settings {
     firmName: str(d, "firmName", f, true),
     shortName: str(d, "shortName", f) || str(d, "firmName", f, true),
     tagline: str(d, "tagline", f),
+    logo: (() => {
+      const v = str(d, "logo", f);
+      if (v && !/^\/images\/[A-Za-z0-9/_.-]+\.(?:svg|png|webp|jpe?g|gif)$/i.test(v)) throw new ContentError(`content/${f}: "logo" should be an image uploaded to the site`);
+      return v;
+    })(),
     colorPrimary: colour("colorPrimary", "#15233b"),
     colorAccent: colour("colorAccent", "#a8864f"),
     phone: str(d, "phone", f),

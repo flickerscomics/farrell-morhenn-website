@@ -25,6 +25,11 @@ content:
       - name: tagline
         label: Tagline
         type: string
+      - name: logo
+        label: Logo (shown beside the firm name; leave empty for the "FM" mark)
+        type: image
+        options:
+          path: public/images/brand
       - name: colorPrimary
         label: Main colour (hex, e.g. #15233b)
         type: string

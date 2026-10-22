@@ -16,6 +16,7 @@ practiceAreas:
   - criminal-defence
   - constitutional-and-civil-rights
   - appeals-and-post-conviction
+  - expungement-and-record-sealing
 languages:
   - English
   - Italian

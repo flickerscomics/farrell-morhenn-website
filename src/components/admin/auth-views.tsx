@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { api, type Me } from "./api";
 
 export function Problem({ message }: { message: string }) {
@@ -56,9 +56,14 @@ function useSubmit(action: () => Promise<void>) {
   return { busy, error, setError, onSubmit };
 }
 
+/** The firm's logo, shown on the sign-in screens. */
+export const LogoContext = createContext<string | null>(null);
+
 function Narrow({ title, lead, children }: { title: string; lead?: string; children: ReactNode }) {
+  const logo = useContext(LogoContext);
   return (
     <div className="admin-narrow card">
+      {logo && <img src={logo} alt="" className="admin-seal" width={96} height={96} />}
       <h1 style={{ fontSize: "1.8rem" }}>{title}</h1>
       {lead && <p className="muted">{lead}</p>}
       {children}

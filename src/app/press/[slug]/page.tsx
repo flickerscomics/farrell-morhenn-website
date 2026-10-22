@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { PressCard } from "@/components/cards";
 import { PressReleaseView } from "@/components/press-release-view";
 import { Breadcrumbs } from "@/components/ui";
-import { absoluteUrl, pressListItem, pressRelease, pressReleases, relatedReleases } from "@/lib/content";
+import { absoluteUrl, pressListItem, pressRelease, pressReleases, relatedReleases, shareImages } from "@/lib/content";
 
 export const dynamicParams = false;
 
@@ -28,9 +28,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       publishedTime: r.releaseAt,
       modifiedTime: r.updatedOn,
       tags: r.tags,
-      images: r.image ? [{ url: absoluteUrl(r.image), alt: r.imageAlt }] : undefined,
+      images: shareImages(r.image ? { url: r.image, alt: r.imageAlt } : undefined),
     },
-    twitter: { card: r.image ? "summary_large_image" : "summary", title: r.title, description: r.summary },
+    twitter: { card: "summary_large_image", title: r.title, description: r.summary, images: shareImages(r.image ? { url: r.image, alt: r.imageAlt } : undefined) },
     robots: r.status === "ARCHIVED" ? { index: false } : undefined,
   };
 }

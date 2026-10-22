@@ -37,11 +37,12 @@ Built in October 2026. See "Staff admin area" in the README for setup and day-to
 
 ## Phase 3: Staff self-service and editor toolbar
 
-- Staff editing their own profile (biography, photo, languages, qualifications, contact details, with a preview) arrived early, in Phase 2. Still to do here: a side-by-side live preview of the whole profile page.
-- Press editor with a BBCode toolbar (bold, italic, underline, strike, headings, link, quote, list, alignment, colour, image, table), keyboard shortcuts, a live preview using the same parser as the site, and a BBCode help panel.
-- Private drafts and embargoes are stored in the login service until release, instead of in the public repository.
+- ✅ Staff editing their own profile (biography, photo, languages, qualifications, contact details, with a preview) arrived early, in Phase 2.
+- ✅ BBCode toolbar (bold, italic, underline, strike, headings, link, quote, lists, centre, divider, image upload), Ctrl/Cmd+B/I/U shortcuts and a live preview using the same parser as the site.
+- ✅ Builds saved: drafts and uploads don't rebuild the site, and Approve all publishes several approvals in one commit.
+- Still to do if wanted: a side-by-side live preview of the whole profile page; private drafts and embargoes stored in the login service until release, instead of in the public repository.
 
-## Phase 4: Hardening
+## Phase 4: Hardening (two-step sign-in not wanted for now, October 2026)
 
 - Two-factor authentication (authenticator app) for admins.
 - Security review and tests for permissions, sessions, invitations and CSRF.

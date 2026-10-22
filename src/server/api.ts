@@ -47,6 +47,7 @@ const ROUTES: [string, RegExp, Handler][] = [
   ["POST", /^upload$/, (c) => content.upload(c)],
 
   ["GET", /^approvals$/, (c) => content.approvals(c)],
+  ["POST", /^approvals\/approve-all$/, (c) => content.approveAll(c)],
   ["POST", /^approvals\/([\w-]+)\/approve$/, (c, id) => content.approve(c, id)],
   ["POST", /^approvals\/([\w-]+)\/reject$/, (c, id) => content.reject(c, id)],
   ["POST", /^approvals\/([\w-]+)\/withdraw$/, (c, id) => content.withdraw(c, id)],

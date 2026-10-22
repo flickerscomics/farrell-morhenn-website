@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArticleCard, PersonCard } from "@/components/cards";
 import { Markdown, PageHero } from "@/components/ui";
-import { absoluteUrl, articles, faqsForArea, peopleInArea, practiceArea, practiceAreas } from "@/lib/content";
+import { absoluteUrl, articles, faqsForArea, peopleInArea, practiceArea, practiceAreas, shareImages } from "@/lib/content";
 
 export const dynamicParams = false;
 
@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: area.name,
     description: area.shortDescription,
     alternates: { canonical: absoluteUrl(`/practice-areas/${area.slug}/`) },
-    openGraph: { title: area.name, description: area.shortDescription },
+    openGraph: { title: area.name, description: area.shortDescription, images: shareImages() },
   };
 }
 

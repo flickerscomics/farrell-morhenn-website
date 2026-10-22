@@ -22,6 +22,8 @@ export interface Repo {
   /** Creates or updates a file. Pass the sha you read to update; omit it to create. */
   write(path: string, base64: string, message: string, sha?: string): Promise<{ sha: string }>;
   remove(path: string, sha: string, message: string): Promise<void>;
+  /** Saves several text files (null deletes one) in a single commit, so the site rebuilds once. */
+  commitFiles(files: { path: string; text: string | null }[], message: string): Promise<void>;
 }
 
 /** The file changed (or appeared) since it was read. */
@@ -160,6 +162,36 @@ export class GitHubRepo implements Repo {
     if (!res.ok) throw new Error(`Couldn't save ${path} to GitHub (${res.status})`);
     const data = (await res.json()) as { content: { sha: string } };
     return { sha: data.content.sha };
+  }
+
+  async commitFiles(files: { path: string; text: string | null }[], message: string): Promise<void> {
+    const repo = `https://api.github.com/repos/${this.cfg.repo}/git`;
+    const branch = encodeURIComponent(this.cfg.branch);
+    const ok = async (res: Response, what: string) => {
+      if (res.status === 409 || res.status === 422) throw new ConflictError(what);
+      if (!res.ok) throw new Error(`Couldn't ${what} on GitHub (${res.status})`);
+      return res.json() as Promise<Record<string, unknown>>;
+    };
+    const ref = (await ok(await this.call(`${repo}/ref/heads/${branch}`), "read the branch")) as { object: { sha: string } };
+    const head = (await ok(await this.call(`${repo}/commits/${ref.object.sha}`), "read the latest commit")) as { tree: { sha: string } };
+    const tree = (await ok(
+      await this.call(`${repo}/trees`, {
+        method: "POST",
+        body: JSON.stringify({
+          base_tree: head.tree.sha,
+          tree: files.map((f) => ({ path: f.path, mode: "100644", type: "blob", ...(f.text === null ? { sha: null } : { content: f.text }) })),
+        }),
+      }),
+      "prepare the changes",
+    )) as { sha: string };
+    const commit = (await ok(
+      await this.call(`${repo}/commits`, {
+        method: "POST",
+        body: JSON.stringify({ message, tree: tree.sha, parents: [ref.object.sha], author: this.person(), committer: this.person() }),
+      }),
+      "save the changes",
+    )) as { sha: string };
+    await ok(await this.call(`${repo}/refs/heads/${branch}`, { method: "PATCH", body: JSON.stringify({ sha: commit.sha, force: false }) }), "publish the changes");
   }
 
   async remove(path: string, sha: string, message: string): Promise<void> {
