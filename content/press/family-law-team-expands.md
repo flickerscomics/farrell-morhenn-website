@@ -11,17 +11,16 @@ releaseDate: 2026-10-20
 releaseTime: "09:00"
 releaseLine: For immediate release
 location: LOS SANTOS, San Andreas
-summary: Associate Attorney Grace Ashworth will now also take family matters alongside Senior Attorney Daniela Reyes, shortening waiting times for initial consultations.
+summary: Associate Attorney Grace Ashworth will now also take family matters, shortening waiting times for initial consultations.
 isFeatured: true
 pullQuote: Families going through a separation need answers quickly. A larger team means we can give them a first meeting within days, not weeks.
-pullQuoteBy: Daniela Reyes, Senior Attorney
+pullQuoteBy: Grace Ashworth, Associate Attorney
 image: ""
 imageAlt: ""
 imageCaption: ""
 attachments: []
 mediaContact: ""
 people:
-  - daniela-reyes
   - grace-ashworth
 practiceAreas:
   - family-law
@@ -32,7 +31,7 @@ updateNote: ""
 showBoilerplate: true
 boilerplate: ""
 ---
-Farrell-Morhenn today announced that [url=/people/grace-ashworth][b]Associate Attorney Grace Ashworth[/b][/url], who already advises on wills, estates and property, will now also take family matters, working alongside [url=/people/daniela-reyes]Senior Attorney Daniela Reyes[/url].
+Farrell-Morhenn today announced that [url=/people/grace-ashworth][b]Associate Attorney Grace Ashworth[/b][/url], who already advises on wills, estates and property, will now also take family matters, joining the firm's established family practice.
 
 Demand for family law advice has grown steadily over the past year. The additional capacity means clients can expect:
 

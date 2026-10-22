@@ -27,7 +27,7 @@ export function PeopleDirectory({ people, areas }: { people: Person[]; areas: { 
       <form className="filters" role="search" aria-label="Filter people" onSubmit={(e) => e.preventDefault()}>
         <div className="field field-grow">
           <label className="label" htmlFor="q">Name or title</label>
-          <input id="q" className="input" value={values.q} onChange={(e) => update({ q: e.target.value })} placeholder="e.g. Reyes" />
+          <input id="q" className="input" value={values.q} onChange={(e) => update({ q: e.target.value })} placeholder="e.g. Bernardi" />
         </div>
         <div className="field">
           <label className="label" htmlFor="role">Role</label>

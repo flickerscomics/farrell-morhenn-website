@@ -41,13 +41,13 @@ test("practice area pages list matters, services, FAQs and the team", async ({ p
 test("people directory filters in the browser and keeps the filter in the URL", async ({ page }) => {
   await page.goto("people/");
   await expect(page.getByText("Robert Hale")).toHaveCount(0);
-  await page.getByLabel("Name or title").fill("Reyes");
+  await page.getByLabel("Name or title").fill("Bernardi");
   await expect(page.getByText("1 person match your search")).toBeVisible();
-  await expect(page).toHaveURL(/\?q=Reyes$/);
+  await expect(page).toHaveURL(/\?q=Bernardi$/);
   await page.reload();
-  await expect(page.getByLabel("Name or title")).toHaveValue("Reyes");
-  await page.getByRole("link", { name: /Daniela Reyes/ }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Daniela Reyes");
+  await expect(page.getByLabel("Name or title")).toHaveValue("Bernardi");
+  await page.getByRole("link", { name: /Nina Bernardi/ }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Nina Bernardi");
 
   await page.goto("people/?role=partners");
   await expect(page.getByRole("link", { name: /Marty Farrell/ })).toBeVisible();
@@ -56,7 +56,7 @@ test("people directory filters in the browser and keeps the filter in the URL", 
 });
 
 test("profiles explain how to book, except for staff on leave", async ({ page }) => {
-  await page.goto("people/daniela-reyes/");
+  await page.goto("people/nina-bernardi/");
   await expect(page.getByRole("heading", { name: "Arrange a consultation" })).toBeVisible();
   await page.goto("people/samuel-brandt/");
   await expect(page.locator(".notice-warn", { hasText: "currently on leave" })).toBeVisible();
@@ -116,7 +116,7 @@ test("pages read like a real firm's website, with no out-of-character wording", 
   const banned = /in[- ]character|out[- ]of[- ]character|\bOOC\b|roleplay|fictional|GTA|real[- ]world|Calder|Whitmore/i;
   for (const path of [
     "./", "about/", "practice-areas/", "practice-areas/immigration-and-residency/", "people/", "people/marty-farrell/",
-    "people/gideon-morhenn/", "people/daniela-reyes/", "news/", "news/traffic-stops-in-los-santos-what-to-expect/",
+    "people/gideon-morhenn/", "people/nina-bernardi/", "news/", "news/traffic-stops-in-los-santos-what-to-expect/",
     "faq/", "careers/", "careers/paralegal/", "contact/", "privacy/", "terms/", "disclaimer/",
     "press/", "press/family-law-team-expands/", "press/paleto-bay-legal-clinics/", "press/statement-on-impersonation-emails/",
   ]) {
@@ -162,8 +162,8 @@ test("a press release shows its dateline, BBCode formatting, contact and boilerp
   await expect(page.locator(".media-contact")).toContainText("press@farrellmorhennlaw.com");
   await expect(page.locator(".release-boilerplate")).toContainText("About Farrell-Morhenn");
   await expect(page.locator(".end-mark")).toHaveText("###");
-  await body.getByRole("link", { name: "Senior Attorney Daniela Reyes" }).click();
-  await expect(page).toHaveURL(/\/farrell-morhenn-website\/people\/daniela-reyes\/$/);
+  await body.getByRole("link", { name: "Associate Attorney Grace Ashworth" }).click();
+  await expect(page).toHaveURL(/\/farrell-morhenn-website\/people\/grace-ashworth\/$/);
 });
 
 test("release pages show tables, update notices and archive notices", async ({ page }) => {

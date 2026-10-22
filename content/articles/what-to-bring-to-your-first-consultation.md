@@ -7,7 +7,7 @@ category: community
 tags:
   - consultations
   - getting started
-author: daniela-reyes
+author: nina-bernardi
 publishedOn: 2026-10-11
 draft: false
 isFeatured: false

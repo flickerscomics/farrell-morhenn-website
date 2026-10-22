@@ -92,7 +92,7 @@ describe("visibility rules", () => {
 
   it("does not let on-leave staff be booked", () => {
     expect(isBookable(people().find((p) => p.slug === "samuel-brandt")!)).toBe(false);
-    expect(isBookable(people().find((p) => p.slug === "daniela-reyes")!)).toBe(true);
+    expect(isBookable(people().find((p) => p.slug === "nina-bernardi")!)).toBe(true);
   });
 
   it("excludes drafts and future-dated articles", () => {
