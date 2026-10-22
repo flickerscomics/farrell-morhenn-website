@@ -2,7 +2,7 @@
 title: Dolls of Los Santos - PRESS RELEASE
 slug: dolls-of-los-santos-press-1
 subtitle: FARRELL-MARINO & ASSOCIATES
-status: DRAFT
+status: PUBLISHED
 releaseDate: 2026-10-22
 releaseLine: For immediate release
 category: firm-announcements
