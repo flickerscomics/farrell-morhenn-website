@@ -81,7 +81,10 @@ navigation:
   - label: Contact
     href: /contact
 socialLinks: []
-footerText: The information on this website is general information only and is not legal advice. Contacting the firm does not create an attorney-client relationship.
+footerText: |-
+  The information on this website is general information only and is not legal advice. Contacting the firm does not create an attorney-client relationship.
+
+  (( Website built by daedlus ))
 press:
   contactName: Press Office
   contactTitle: Farrell-Morhenn
