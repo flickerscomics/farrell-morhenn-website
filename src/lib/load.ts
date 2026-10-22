@@ -6,7 +6,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import YAML from "yaml";
-import type { Article, ArticleType, Category, Faq, Milestone, Page, Person, PracticeArea, Settings, StaffRole, StaffStatus, Vacancy } from "./types";
+import type { Article, ArticleType, Category, Faq, Milestone, Page, Person, PracticeArea, PressRelease, PressStatus, Settings, StaffRole, StaffStatus, Vacancy } from "./types";
+import { zonedTimeToUtc } from "./time";
 
 const ROOT = path.join(process.cwd(), "content");
 
@@ -139,6 +140,7 @@ export function loadSettings(): Settings {
     return v;
   };
   const home = (d.homeSections ?? {}) as Raw;
+  const press = (d.press ?? {}) as Raw;
   return {
     firmName: str(d, "firmName", f, true),
     shortName: str(d, "shortName", f) || str(d, "firmName", f, true),
@@ -167,6 +169,15 @@ export function loadSettings(): Settings {
       showArticles: bool(home, "showArticles", true),
       showCareers: bool(home, "showCareers", true),
       showContact: bool(home, "showContact", true),
+      showPress: bool(home, "showPress", true),
+    },
+    press: {
+      contactName: str(press, "contactName", f),
+      contactTitle: str(press, "contactTitle", f),
+      contactEmail: str(press, "contactEmail", f) || str(d, "email", f),
+      contactPhone: str(press, "contactPhone", f) || str(d, "phone", f),
+      boilerplate: str(press, "boilerplate", f),
+      defaultLocation: str(press, "defaultLocation", f) || "LOS SANTOS, San Andreas",
     },
     confidentialityNotice: str(d, "confidentialityNotice", f),
   };
@@ -229,6 +240,62 @@ export function loadArticles(): Article[] {
     isFeatured: bool(data, "isFeatured", false),
     practiceAreas: list(data, "practiceAreas"),
   }));
+}
+
+const PRESS_STATUSES: readonly PressStatus[] = ["DRAFT", "PUBLISHED", "ARCHIVED"];
+/** Uploaded files that may be offered for download. */
+const ATTACHMENT = /^\/images\/[A-Za-z0-9/_.-]+\.(?:pdf|jpe?g|png|webp)$/i;
+
+export function loadPressReleases(timezone: string, defaultLocation: string): PressRelease[] {
+  return collection("press").map(({ file, base, data, body }) => {
+    const releaseDate = date(data, "releaseDate", file, true);
+    const releaseTime = str(data, "releaseTime", file) || "00:00";
+    if (!TIME.test(releaseTime)) throw new ContentError(`content/${file}: "releaseTime" must be a time like 09:00`);
+    const image = str(data, "image", file) || undefined;
+    if (image && !ATTACHMENT.test(image)) throw new ContentError(`content/${file}: "image" must be an uploaded image under /images/`);
+    const attachments = objects(data.attachments).map((a) => {
+      const att = { label: str(a, "label", file, true), file: str(a, "file", file, true) };
+      if (!ATTACHMENT.test(att.file) || att.file.includes("..")) {
+        throw new ContentError(`content/${file}: attachment "${att.label}" must be an uploaded PDF or image under /images/`);
+      }
+      return att;
+    });
+    return {
+      slug: slugOf(data, base, file),
+      title: str(data, "title", file, true),
+      subtitle: str(data, "subtitle", file),
+      category: str(data, "category", file, true),
+      tags: list(data, "tags"),
+      status: oneOf(data, "status", PRESS_STATUSES, "DRAFT", file),
+      releaseDate,
+      releaseTime,
+      releaseAt: zonedTimeToUtc(releaseDate, releaseTime, timezone).toISOString(),
+      releaseLine: str(data, "releaseLine", file) || "For immediate release",
+      location: str(data, "location", file) || defaultLocation,
+      summary: str(data, "summary", file, true),
+      body,
+      updatedOn: date(data, "updatedOn", file, false) || undefined,
+      updateNote: str(data, "updateNote", file),
+      pullQuote: str(data, "pullQuote", file),
+      pullQuoteBy: str(data, "pullQuoteBy", file),
+      image,
+      imageAlt: str(data, "imageAlt", file),
+      imageCaption: str(data, "imageCaption", file),
+      attachments,
+      mediaContact: str(data, "mediaContact", file),
+      people: list(data, "people"),
+      practiceAreas: list(data, "practiceAreas"),
+      related: list(data, "related"),
+      isFeatured: bool(data, "isFeatured", false),
+      showBoilerplate: bool(data, "showBoilerplate", true),
+      boilerplate: str(data, "boilerplate", file),
+    };
+  });
+}
+
+export function loadPressCategories(): Category[] {
+  const f = "press-categories.yml";
+  return objects(readYaml(f).categories).map((c) => ({ slug: str(c, "slug", f, true), name: str(c, "name", f, true) }));
 }
 
 export function loadVacancies(): Vacancy[] {

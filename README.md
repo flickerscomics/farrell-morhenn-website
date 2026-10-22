@@ -18,13 +18,14 @@ The menu on the left has these sections:
 
 | Section | What you can change |
 | --- | --- |
-| **Firm settings** | Firm name, tagline, colours, phone, email, address, office hours, contact methods, consultation types, homepage title and text, which homepage sections appear, the main menu, footer notice |
+| **Firm settings** | Firm name, tagline, colours, phone, email, address, office hours, contact methods, consultation types, homepage title and text, which homepage sections appear, the main menu, footer notice, press office contact and the "About the firm" paragraph for press releases |
 | **People** | Attorneys and staff: name, title, role, status, portrait, biography, practice areas, languages, contact details, qualifications. Add someone with **Add an entry**. |
 | **Practice areas** | Each practice area's description, matters handled, services, and whether it's shown or featured |
 | **News & articles** | Write, edit or schedule articles. Tick **Draft** to keep one hidden. |
+| **Press releases** | Write, schedule, update and archive press releases, with BBCode formatting (see below) |
 | **Vacancies** | Open (accepting applications), Closed (shown as closed) or Draft (hidden) |
 | **FAQs** | Questions, answers and categories |
-| **Website pages** | Homepage introduction and steps, About, Careers intro, Contact, Privacy, Terms, Legal disclaimer, history timeline, article categories |
+| **Website pages** | Homepage introduction and steps, About, Careers intro, Contact, Privacy, Terms, Legal disclaimer, history timeline, article categories, press release categories |
 
 Press **Save** and Pages CMS saves the change to GitHub. The site republishes automatically about a minute later.
 
@@ -32,22 +33,57 @@ Press **Save** and Pages CMS saves the change to GitHub. The site republishes au
 
 - **Web address fields** (on people, practice areas, articles and vacancies) are the page addresses. Use lowercase letters, numbers and hyphens, e.g. `jane-doe`. Changing one changes that page's link.
 - **Staff status:** *Active* and *On leave* people are shown (on-leave staff can't be booked). *Inactive* and *Departed* people are hidden, as is anyone with *Show on the website* unticked.
-- **Articles** appear on their publication date. One dated in the future appears after the next save made on or after that date.
+- **Articles** appear on their publication date. The site rebuilds itself every hour, so a future-dated article appears within an hour of its date arriving.
 - **Portraits:** upload an image in the person's **Portrait** field. Without one, the person's initials are shown.
 - **Article categories:** the category dropdown on articles has a fixed list in `.pages.yml`. To add a category, add it under *Website pages → Article categories* **and** to that list.
 - **Safety net:** each save is checked before it's published. If something is wrong (for example an article linked to a practice area that doesn't exist), the update stops, the live site stays as it was, and the error appears in the repository's **Actions** tab.
 
 You can still edit the files in `content/` directly on GitHub if you prefer.
 
+### Press releases
+
+Each release has a headline, optional subheadline, status, release date and time, the line above the headline ("For immediate release", "Statement"…), dateline place, category, tags, summary, the release text, and optionally a pull quote, header image, downloads (PDF or image), media contact, people mentioned, related practice areas and related releases. The standard "About Farrell-Morhenn" paragraph is added at the end unless you untick it, and can be replaced for a single release.
+
+- **Status:** *Draft* is hidden. *Published* is live from its release date and time. *Archived* leaves the press list, homepage and feed, but the page stays online with an "archived" notice so old links still work.
+- **Scheduling:** set a future release date and time (in the firm's time zone). The release appears within an hour of that time. Leave the time blank for midnight.
+- **Embargoes:** the repository is public, so the text of a scheduled release can be read on GitHub before it goes live. Keep a release as a *Draft*, or don't save it, until its text can be public. Private drafts arrive with the login system (see `docs/ROADMAP.md`).
+- **Corrections:** fill in *Updated on* and the *Update note* to show a dated notice at the top.
+- **Featured:** the newest featured release is highlighted at the top of the press page.
+- **Categories:** to add one, add it under *Website pages → Press release categories* **and** to the category list of the *Press releases* section in `.pages.yml`.
+- **Feed:** releases are published as an RSS feed at `/press/feed.xml`.
+
+### Formatting press releases (BBCode)
+
+Leave a blank line between paragraphs. A single line break is kept as a line break.
+
+| Type this | To get |
+| --- | --- |
+| `[b]bold[/b]` `[i]italic[/i]` `[u]underline[/u]` `[s]strike[/s]` | Text styles |
+| `[h2]Heading[/h2]` `[h3]Subheading[/h3]` | Headings |
+| `[url=https://example.com]link text[/url]` | Link to another website |
+| `[url=/contact]contact page[/url]` | Link to a page on this site |
+| `[email]press@example.com[/email]` | Email link |
+| `[quote=Jane Doe, Senior Attorney]Quoted words[/quote]` | Quotation with attribution |
+| `[list][*]First[*]Second[/list]` | Bulleted list (`[list=1]` numbers it, `[list=a]` letters it) |
+| `[center]…[/center]` `[right]…[/right]` | Alignment |
+| `[color=gold]…[/color]` | Colour: navy, gold, red, green or grey |
+| `[size=large]…[/size]` | Size: small, large or x-large |
+| `[img=Description]/images/press/photo.jpg[/img]` | An image uploaded through the editor |
+| `[table][tr][th]Heading[/th][/tr][tr][td]Cell[/td][/tr][/table]` | Table |
+| `[hr]` | Divider line |
+| `[noparse][b]text[/b][/noparse]` | Shows BBCode exactly as typed |
+
+Anything else, including HTML, is shown as plain text. Links may only go to web addresses, email addresses or pages on this site, and images must be uploaded to the site.
+
 ## Publishing on GitHub Pages
 
-Publishing is automatic: every change to `main` runs the **Deploy to GitHub Pages** workflow, which checks, builds and publishes the site. Pages must be set to **Settings → Pages → Source: GitHub Actions**.
+Publishing is automatic: every change to `main` runs the **Deploy to GitHub Pages** workflow, which checks, builds and publishes the site. It also runs every hour so scheduled releases and articles appear on time. (GitHub switches off hourly runs in a repository with no activity for 60 days. If that happens, re-enable the workflow from the repository's **Actions** tab.) Pages must be set to **Settings → Pages → Source: GitHub Actions**.
 
 **Renaming the repository** needs no code changes. The address simply becomes `https://<owner>.github.io/<new-name>/`. Custom domains (Settings → Pages → Custom domain) work too.
 
 ## What a static site can't do
 
-GitHub Pages only serves files, so the site has no online forms, logins, admin area or client portal. Visitors contact the firm by phone, email or in person, as the Contact page explains. A full database-backed version (online forms, admin dashboard, matter management, client portal) was built earlier and is preserved in this repository's history at commit `2fa7790`. It needs a Node.js host with PostgreSQL rather than GitHub Pages.
+GitHub Pages only serves files, so the site has no online forms, logins, admin area or client portal. Staff logins and an admin area are planned; see [`docs/ROADMAP.md`](docs/ROADMAP.md). Visitors contact the firm by phone, email or in person, as the Contact page explains. A full database-backed version (online forms, admin dashboard, matter management, client portal) was built earlier and is preserved in this repository's history at commit `2fa7790`. It needs a Node.js host with PostgreSQL rather than GitHub Pages.
 
 ## For developers
 
@@ -72,6 +108,7 @@ content/              Editable content (YAML, and Markdown with a YAML header)
 public/images/        Uploaded images
 src/lib/load.ts       Reads and validates /content at build time
 src/lib/content.ts    Visibility rules and cross-reference checks
+src/lib/bbcode.ts     BBCode parser (rendered by src/components/bbcode.tsx)
 src/app/              Pages (Next.js static export)
 src/components/       UI components
 tests/, e2e/          Vitest and Playwright tests

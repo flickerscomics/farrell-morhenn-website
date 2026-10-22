@@ -67,6 +67,7 @@ export function SiteFooter() {
               <li><Link href="/about">About</Link></li>
               <li><Link href="/people">People</Link></li>
               <li><Link href="/news">News &amp; insights</Link></li>
+              <li><Link href="/press">Press releases</Link></li>
               <li><Link href="/careers">Careers</Link></li>
               <li><Link href="/faq">FAQ</Link></li>
             </ul>

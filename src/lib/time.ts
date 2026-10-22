@@ -23,3 +23,23 @@ export function timeZoneName(timeZone: string) {
     return timeZone;
   }
 }
+
+/** The UTC instant of a wall-clock date and time (YYYY-MM-DD, HH:MM) in a time zone, allowing for daylight saving. */
+export function zonedTimeToUtc(isoDate: string, time: string, timeZone: string): Date {
+  const [y, m, d] = isoDate.split("-").map(Number);
+  const [hh, mm] = time.split(":").map(Number);
+  const wall = Date.UTC(y, m - 1, d, hh, mm);
+  const offset = (at: number) => {
+    const parts = Object.fromEntries(
+      new Intl.DateTimeFormat("en-US", { timeZone, hourCycle: "h23", year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "numeric" })
+        .formatToParts(new Date(at))
+        .map((p) => [p.type, Number(p.value)]),
+    );
+    return Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute) - at;
+  };
+  // Two passes settle the offset either side of a daylight-saving change.
+  let guess = wall - offset(wall);
+  guess = wall - offset(guess);
+  return new Date(guess);
+}
+

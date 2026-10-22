@@ -758,6 +758,7 @@ a.tag:hover {
   color: var(--ink-2);
   font-weight: 500;
   font-size: 0.93rem;
+  white-space: nowrap;
   border-bottom: 2px solid transparent;
 }
 .main-nav a:hover {
@@ -776,7 +777,7 @@ a.tag:hover {
   display: none;
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 1180px) {
   .main-nav,
   .header-actions .btn-header-cta {
     display: none;
@@ -1736,5 +1737,205 @@ dialog.confirm-dialog h2 {
   }
   .portrait-placeholder {
     font-size: 1.6rem;
+  }
+}
+
+/* ─── Press releases ──────────────────────────────────────────────────── */
+
+.press-strip {
+  border-top: 1px solid var(--line-soft);
+}
+.press-list {
+  display: grid;
+  border-top: 1px solid var(--line);
+}
+.press-card {
+  display: block;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--line);
+  text-decoration: none;
+  color: inherit;
+}
+.grid .press-card {
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--white);
+}
+.press-card h3 {
+  font-size: 1.2rem;
+  margin: 0.4rem 0 0.35rem;
+}
+.press-card p {
+  margin: 0;
+  color: var(--ink-2);
+}
+.press-card:hover h3 {
+  color: var(--navy);
+  text-decoration: underline;
+  text-decoration-color: var(--gold);
+}
+.press-card-featured {
+  padding: 1.5rem;
+  background: var(--navy);
+  border-radius: var(--radius-lg);
+  border: 0;
+}
+.press-card-featured h3 {
+  color: var(--white);
+  font-size: 1.5rem;
+}
+.press-card-featured p,
+.press-card-featured .meta-line {
+  color: color-mix(in srgb, var(--white) 82%, transparent);
+}
+.press-card-featured .meta-line .kind {
+  color: var(--gold);
+}
+.press-card-featured:hover h3 {
+  color: var(--white);
+}
+
+.release-line {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  margin: 0 0 0.75rem;
+}
+.dateline {
+  max-width: 68ch;
+  margin: 2rem 0 0.75rem;
+  font-family: var(--font-serif);
+  font-size: 1.12rem;
+}
+.end-mark {
+  max-width: 68ch;
+  text-align: center;
+  letter-spacing: 0.3em;
+  margin: 2rem 0;
+  color: var(--ink-3);
+}
+.release-boilerplate {
+  max-width: 68ch;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+}
+.release-boilerplate .prose {
+  font-size: 1rem;
+  color: var(--ink-2);
+}
+.release-figure {
+  margin: 2rem 0 0;
+  max-width: 68ch;
+}
+.release-figure img {
+  width: 100%;
+  border-radius: var(--radius-lg);
+}
+.release-figure figcaption {
+  font-size: 0.85rem;
+  color: var(--ink-3);
+  margin-top: 0.5rem;
+}
+.release-aside {
+  align-self: start;
+}
+.release-actions {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.pull-quote {
+  margin: 0;
+  padding: 1.25rem 1.25rem 1.25rem 1.5rem;
+  border-left: 3px solid var(--gold);
+  background: var(--gold-tint);
+}
+.pull-quote blockquote {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  line-height: 1.5;
+  color: var(--navy);
+}
+.pull-quote figcaption {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--ink-2);
+}
+
+/* BBCode output */
+.bbcode .bb-center {
+  text-align: center;
+}
+.bbcode .bb-right {
+  text-align: right;
+}
+.bbcode .bb-quote {
+  margin: 1.5rem 0;
+}
+.bbcode .bb-quote blockquote {
+  margin: 0;
+}
+.bbcode .bb-quote figcaption {
+  padding-left: 1.25rem;
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--ink-3);
+}
+.bbcode .bb-quote figcaption::before {
+  content: "— ";
+}
+.bbcode hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 2rem 0;
+}
+.bbcode .bb-img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+}
+.bbcode .bb-table {
+  overflow-x: auto;
+  margin: 0 0 1.1em;
+}
+.bbcode table {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+}
+.bbcode th,
+.bbcode td {
+  border: 1px solid var(--line);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+.bbcode th {
+  background: var(--stone);
+}
+.bb-color-navy { color: var(--navy); }
+.bb-color-gold { color: var(--gold-text); }
+.bb-color-red { color: var(--danger); }
+.bb-color-green { color: var(--success); }
+.bb-color-grey { color: var(--ink-3); }
+.bb-size-small { font-size: 0.85em; }
+.bb-size-large { font-size: 1.25em; }
+.bb-size-x-large { font-size: 1.6em; line-height: 1.3; }
+
+@media print {
+  .breadcrumbs,
+  .release-actions,
+  .related-releases {
+    display: none !important;
+  }
+  .press-release-layout {
+    display: block;
+  }
+  .release-aside {
+    margin-top: 2rem;
   }
 }

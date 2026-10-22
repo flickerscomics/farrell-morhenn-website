@@ -20,6 +20,7 @@ test("main navigation reaches every section under the base path", async ({ page 
     ["Practice Areas", /How we can help/],
     ["People", /Attorneys and staff/],
     ["News & Insights", /Announcements and legal articles/],
+    ["Press", /Press releases/],
     ["Careers", /Careers at Farrell-Morhenn/],
     ["Contact", /Contact the office/],
   ] as const) {
@@ -92,7 +93,7 @@ test("careers show application instructions; closed vacancies say so", async ({ 
 });
 
 test("missing pages, drafts and hidden profiles return the 404 page", async ({ page, request }) => {
-  for (const path of ["no-such-page/", "people/robert-hale/", "news/updated-office-hours-autumn/", "careers/investigator/"]) {
+  for (const path of ["no-such-page/", "people/robert-hale/", "news/updated-office-hours-autumn/", "careers/investigator/", "press/winter-community-fund/"]) {
     const res = await page.goto(path);
     expect(res?.status(), path).toBe(404);
     await expect(page.getByRole("heading", { name: "We could not find that page" })).toBeVisible();
@@ -117,6 +118,7 @@ test("pages read like a real firm's website, with no out-of-character wording", 
     "./", "about/", "practice-areas/", "practice-areas/immigration-and-residency/", "people/", "people/marty-farrell/",
     "people/gideon-morhenn/", "people/daniela-reyes/", "news/", "news/traffic-stops-in-los-santos-what-to-expect/",
     "faq/", "careers/", "careers/paralegal/", "contact/", "privacy/", "terms/", "disclaimer/",
+    "press/", "press/family-law-team-expands/", "press/paleto-bay-legal-clinics/", "press/statement-on-impersonation-emails/",
   ]) {
     await page.goto(path);
     const text = await page.locator("body").innerText();
@@ -124,4 +126,75 @@ test("pages read like a real firm's website, with no out-of-character wording", 
     const title = await page.title();
     expect(title.match(banned)?.[0], `${path} title`).toBeUndefined();
   }
+});
+
+test("press page features a release, filters the rest and keeps filters in the URL", async ({ page }) => {
+  await page.goto("press/");
+  await expect(page.locator(".press-card-featured")).toContainText("Farrell-Morhenn expands its family law team");
+  await expect(page.getByText("3 press releases")).toBeVisible();
+  await expect(page.getByText("Office closed on Saturday 4 July")).toHaveCount(0); // archived
+  await expect(page.getByText("Farrell-Morhenn launches winter community fund")).toHaveCount(0); // draft
+
+  await page.getByLabel("Category").selectOption("statements");
+  await expect(page).toHaveURL(/\?category=statements$/);
+  await expect(page.getByText("1 press release", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Clear filters" }).click();
+
+  await page.getByRole("textbox", { name: "Search press releases" }).fill("no-release-mentions-this");
+  await expect(page.getByText("No press releases match your search")).toBeVisible();
+  await page.getByRole("textbox", { name: "Search press releases" }).fill("walk-in");
+  await expect(page.getByText("1 press release", { exact: true })).toBeVisible();
+  await page.getByRole("link", { name: /Free legal clinics come to Paleto Bay/ }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Free legal clinics come to Paleto Bay");
+});
+
+test("a press release shows its dateline, BBCode formatting, contact and boilerplate", async ({ page }) => {
+  await page.goto("press/family-law-team-expands/");
+  await expect(page.locator(".release-line")).toHaveText("For immediate release");
+  await expect(page.locator(".dateline")).toContainText("LOS SANTOS, San Andreas — October 20, 2026");
+  const body = page.locator(".press-release .bbcode").first();
+  await expect(body.locator("strong", { hasText: "Faster first meetings" })).toBeVisible();
+  await expect(body.locator("em", { hasText: "English and Spanish" })).toBeVisible();
+  await expect(body.getByRole("heading", { level: 2, name: "Matters the team handles" })).toBeVisible();
+  await expect(body.locator("figure.bb-quote figcaption")).toHaveText("Grace Ashworth, Associate Attorney");
+  await expect(body.locator("ul > li")).toHaveCount(3);
+  await expect(page.locator(".pull-quote")).toContainText("Families going through a separation");
+  await expect(page.locator(".media-contact")).toContainText("press@farrellmorhenn.sa");
+  await expect(page.locator(".release-boilerplate")).toContainText("About Farrell-Morhenn");
+  await expect(page.locator(".end-mark")).toHaveText("###");
+  await body.getByRole("link", { name: "Senior Attorney Daniela Reyes" }).click();
+  await expect(page).toHaveURL(/\/farrell-morhenn-website\/people\/daniela-reyes\/$/);
+});
+
+test("release pages show tables, update notices and archive notices", async ({ page }) => {
+  await page.goto("press/paleto-bay-legal-clinics/");
+  await expect(page.locator(".bbcode table th")).toHaveText(["Date", "Time", "Location"]);
+  await expect(page.locator(".media-contact")).toContainText("Lucia Moretti");
+  await expect(page.getByRole("heading", { name: "Related press releases" })).toBeVisible();
+
+  await page.goto("press/statement-on-impersonation-emails/");
+  await expect(page.getByText(/Updated September 30, 2026/)).toBeVisible();
+  await expect(page.locator(".bbcode ol > li")).toHaveCount(3);
+
+  await page.goto("press/office-closure-independence-day/");
+  await expect(page.getByText("This press release has been archived.")).toBeVisible();
+  await expect(page.locator(".release-boilerplate")).toHaveCount(0);
+});
+
+test("the press feed, sitemap and homepage list current releases", async ({ page, request }) => {
+  const feed = await request.get("press/feed.xml");
+  expect(feed.ok()).toBe(true);
+  const xml = await feed.text();
+  expect(xml).toContain("<title>Farrell-Morhenn expands its family law team</title>");
+  expect(xml).toContain("https://example.github.io/farrell-morhenn-website/press/family-law-team-expands/");
+  expect(xml).not.toContain("office-closure-independence-day");
+  expect(xml).not.toContain("winter-community-fund");
+
+  const sitemap = await (await request.get("sitemap.xml")).text();
+  expect(sitemap).toContain("https://example.github.io/farrell-morhenn-website/press/paleto-bay-legal-clinics/");
+
+  await page.goto("./");
+  const strip = page.locator(".press-strip");
+  await expect(strip.getByRole("heading", { name: "Latest press releases" })).toBeVisible();
+  await expect(strip.locator(".press-card")).toHaveCount(3);
 });

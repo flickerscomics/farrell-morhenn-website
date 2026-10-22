@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { asset } from "@/lib/env";
-import type { Article, Person } from "@/lib/types";
+import type { Article, Person, PressListItem } from "@/lib/types";
 import { ARTICLE_TYPE_LABELS, STAFF_ROLE_LABELS } from "@/lib/labels";
 import { formatDate } from "@/lib/time";
 import { Portrait } from "./ui";
@@ -34,6 +34,19 @@ export function ArticleCard({ article, image }: { article: Article; image?: stri
       <h3>{article.title}</h3>
       <p>{article.summary}</p>
       {article.authorName && <span className="small muted">By {article.authorName}</span>}
+    </Link>
+  );
+}
+
+export function PressCard({ release, featured = false }: { release: PressListItem; featured?: boolean }) {
+  return (
+    <Link href={`/press/${release.slug}`} className={featured ? "press-card press-card-featured" : "press-card"}>
+      <div className="meta-line">
+        <span className="kind">{featured ? "Featured release" : release.categoryName}</span>
+        <time dateTime={release.releaseDate}>{formatDate(release.releaseDate)}</time>
+      </div>
+      <h3>{release.title}</h3>
+      <p>{release.summary}</p>
     </Link>
   );
 }

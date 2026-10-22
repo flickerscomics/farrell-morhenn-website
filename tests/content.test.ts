@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import {
   articleCategories,
   articles,
+  currentPressReleases,
   faqCategories,
   generalFaqs,
   isBookable,
@@ -11,7 +12,11 @@ import {
   page,
   people,
   practiceAreas,
+  pressCategories,
+  pressRelease,
+  pressReleases,
   relatedArticles,
+  relatedReleases,
   site,
   vacancies,
 } from "@/lib/content";
@@ -36,6 +41,9 @@ describe("content", () => {
     expect(milestones.length).toBeGreaterThan(0);
     expect(articleCategories.length).toBeGreaterThan(0);
     expect(faqCategories.length).toBeGreaterThan(0);
+    expect(pressReleases().length).toBeGreaterThan(0);
+    expect(pressCategories.length).toBeGreaterThan(0);
+    expect(site.press.boilerplate).toContain("About Farrell-Morhenn");
     for (const slug of ["home", "about", "careers", "contact", "privacy", "terms", "disclaimer"]) expect(page(slug).title).toBeTruthy();
   });
 
@@ -56,6 +64,22 @@ describe("content", () => {
     const routes = new Set(["/", "/about", "/practice-areas", "/people", "/news", "/faq", "/careers", "/contact", "/privacy", "/terms", "/disclaimer"]);
     const texts = filesUnder(path.join(process.cwd(), "content")).map((f) => fs.readFileSync(f, "utf8"));
     for (const t of texts) for (const m of t.matchAll(/\]\((\/[^)\s]*)\)/g)) expect(routes.has(m[1].replace(/\/$/, "") || "/"), m[1]).toBe(true);
+  });
+
+  it("keeps BBCode links to this site pointing at real pages", () => {
+    const routes = new Set([
+      "/", "/about", "/practice-areas", "/people", "/news", "/press", "/faq", "/careers", "/contact", "/privacy", "/terms", "/disclaimer",
+      ...practiceAreas().map((a) => `/practice-areas/${a.slug}`),
+      ...people().map((p) => `/people/${p.slug}`),
+      ...articles().map((a) => `/news/${a.slug}`),
+      ...pressReleases().map((r) => `/press/${r.slug}`),
+    ]);
+    const texts = filesUnder(path.join(process.cwd(), "content")).map((f) => [f, fs.readFileSync(f, "utf8")] as const);
+    for (const [f, t] of texts) {
+      for (const m of t.matchAll(/\[url=(\/[^\]\s]*)\]/gi)) {
+        expect(routes.has(m[1].replace(/[?#].*$/, "").replace(/\/$/, "") || "/"), `${path.relative(process.cwd(), f)} links to ${m[1]}`).toBe(true);
+      }
+    }
   });
 });
 
@@ -84,5 +108,31 @@ describe("visibility rules", () => {
   it("finds related articles", () => {
     const a = articles().find((x) => x.slug === "traffic-stops-in-los-santos-what-to-expect")!;
     expect(relatedArticles(a).map((r) => r.slug)).toContain("dismissal-in-vehicle-search-matter");
+  });
+});
+
+describe("press releases", () => {
+  it("hides drafts and keeps archived releases out of the list but online", () => {
+    expect(pressRelease("winter-community-fund")).toBeUndefined();
+    expect(pressRelease("office-closure-independence-day")?.status).toBe("ARCHIVED");
+    expect(currentPressReleases().map((r) => r.slug)).not.toContain("office-closure-independence-day");
+  });
+
+  it("publishes a release at its release time in the firm's time zone", () => {
+    // 09:00 Pacific Daylight Time on 20 October 2026 is 16:00 UTC.
+    expect(pressReleases().find((r) => r.slug === "family-law-team-expands")?.releaseAt).toBe("2026-10-20T16:00:00.000Z");
+    const slugs = (iso: string) => pressReleases(new Date(iso)).map((r) => r.slug);
+    expect(slugs("2026-10-20T15:59:00Z")).not.toContain("family-law-team-expands");
+    expect(slugs("2026-10-20T16:00:00Z")).toContain("family-law-team-expands");
+  });
+
+  it("lists the newest first", () => {
+    const dates = currentPressReleases().map((r) => r.releaseAt);
+    expect(dates).toEqual([...dates].sort().reverse());
+  });
+
+  it("puts chosen related releases first", () => {
+    const r = pressRelease("paleto-bay-legal-clinics")!;
+    expect(relatedReleases(r)[0]?.slug).toBe("family-law-team-expands");
   });
 });

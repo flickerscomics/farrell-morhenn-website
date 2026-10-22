@@ -20,7 +20,7 @@ test("mobile menu opens and closes with the button, Escape and navigation", asyn
 });
 
 test("pages do not scroll horizontally on a phone", async ({ page }) => {
-  for (const path of ["./", "people/", "news/", "contact/", "practice-areas/family-law/", "careers/paralegal/"]) {
+  for (const path of ["./", "people/", "news/", "contact/", "practice-areas/family-law/", "careers/paralegal/", "press/", "press/paleto-bay-legal-clinics/"]) {
     await page.goto(path);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow, `${path} overflows horizontally`).toBeLessThanOrEqual(1);

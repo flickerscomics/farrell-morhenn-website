@@ -10,13 +10,16 @@ import {
   loadPages,
   loadPeople,
   loadPracticeAreas,
+  loadPressCategories,
+  loadPressReleases,
   loadSettings,
   loadVacancies,
 } from "./load";
-import type { Article, Person, PracticeArea } from "./types";
+import type { Article, Person, PracticeArea, PressListItem, PressRelease } from "./types";
+import { bbcodeToText } from "./bbcode";
 import { SITE_URL } from "./env";
 
-export type { Article, Person, PracticeArea };
+export type { Article, Person, PracticeArea, PressRelease };
 
 // Loaded once per build.
 export const site = loadSettings();
@@ -30,6 +33,8 @@ export const faqCategories = faqData.categories;
 const allFaqs = faqData.questions;
 export const articleCategories = loadArticleCategories();
 export const milestones = loadMilestones();
+const allReleases = loadPressReleases(site.timezone, site.press.defaultLocation);
+export const pressCategories = loadPressCategories();
 
 // Cross-references are checked here so a typo fails the build with a clear message.
 {
@@ -48,6 +53,15 @@ export const milestones = loadMilestones();
     for (const area of a.practiceAreas) if (!areas.has(area)) throw new ContentError(`Article "${a.title}": unknown practice area "${area}"`);
     if (a.author && !peopleSlugs.has(a.author)) throw new ContentError(`Article "${a.title}": unknown author "${a.author}"`);
     if (!articleCategories.some((c) => c.slug === a.category)) throw new ContentError(`Article "${a.title}": unknown category "${a.category}"`);
+  }
+  unique("press releases", allReleases.map((r) => r.slug));
+  const releaseSlugs = new Set(allReleases.map((r) => r.slug));
+  for (const r of allReleases) {
+    const where = `Press release "${r.title}"`;
+    if (!pressCategories.some((c) => c.slug === r.category)) throw new ContentError(`${where}: unknown category "${r.category}"`);
+    for (const area of r.practiceAreas) if (!areas.has(area)) throw new ContentError(`${where}: unknown practice area "${area}"`);
+    for (const p of [...r.people, ...(r.mediaContact ? [r.mediaContact] : [])]) if (!peopleSlugs.has(p)) throw new ContentError(`${where}: unknown person "${p}"`);
+    for (const other of r.related) if (!releaseSlugs.has(other)) throw new ContentError(`${where}: unknown related release "${other}"`);
   }
   for (const f of allFaqs) {
     if (!faqCategories.some((c) => c.slug === f.category)) throw new ContentError(`FAQ "${f.question}": unknown category "${f.category}"`);
@@ -129,6 +143,78 @@ export function authorOf(a: Article) {
   const visible = person(a.author);
   const any = allPeople.find((p) => p.slug === a.author);
   return any ? { name: any.fullName, slug: visible ? visible.slug : null } : null;
+}
+
+// ─── Press releases ─────────────────────────────────────────────────────────
+
+/**
+ * Every release with a page: not a draft and past its release time (archived
+ * ones included, so old links keep working). Newest first.
+ */
+export function pressReleases(now = new Date()): PressRelease[] {
+  const at = now.toISOString();
+  return allReleases
+    .filter((r) => r.status !== "DRAFT" && r.releaseAt <= at)
+    .sort((a, b) => b.releaseAt.localeCompare(a.releaseAt) || a.title.localeCompare(b.title));
+}
+
+/** Releases for the press list, homepage and feed: archived ones are left out. */
+export function currentPressReleases(now = new Date()) {
+  return pressReleases(now).filter((r) => r.status !== "ARCHIVED");
+}
+
+export function pressRelease(slug: string) {
+  return pressReleases().find((r) => r.slug === slug);
+}
+
+export function pressCategoryName(slug: string) {
+  return pressCategories.find((c) => c.slug === slug)?.name ?? slug;
+}
+
+/** Chosen related releases first, then others sharing a category, tags, people or practice areas. */
+export function relatedReleases(r: PressRelease, limit = 3) {
+  const pool = currentPressReleases().filter((x) => x.slug !== r.slug);
+  const chosen = r.related.map((s) => pool.find((x) => x.slug === s)).filter((x): x is PressRelease => !!x);
+  const score = (b: PressRelease) =>
+    (b.category === r.category ? 2 : 0) +
+    b.tags.filter((t) => r.tags.includes(t)).length +
+    b.people.filter((p) => r.people.includes(p)).length +
+    b.practiceAreas.filter((p) => r.practiceAreas.includes(p)).length;
+  const scored = pool
+    .filter((b) => !chosen.includes(b) && score(b) > 0)
+    .sort((x, y) => score(y) - score(x) || y.releaseAt.localeCompare(x.releaseAt));
+  return [...chosen, ...scored].slice(0, limit);
+}
+
+/** The fields the press list sends to the browser. */
+export function pressListItem(r: PressRelease): PressListItem {
+  return {
+    slug: r.slug,
+    title: r.title,
+    subtitle: r.subtitle,
+    summary: r.summary,
+    category: r.category,
+    categoryName: pressCategoryName(r.category),
+    tags: r.tags,
+    releaseDate: r.releaseDate,
+    isFeatured: r.isFeatured,
+    searchText: [r.title, r.subtitle, r.summary, r.tags.join(" "), bbcodeToText(r.body)].join(" "),
+  };
+}
+
+/** Who journalists should contact about a release. */
+export function mediaContactFor(r: PressRelease) {
+  const p = r.mediaContact ? allPeople.find((x) => x.slug === r.mediaContact) : undefined;
+  if (p) {
+    return { name: p.fullName, title: p.title, email: p.email || site.press.contactEmail, phone: p.phone || site.press.contactPhone, slug: person(p.slug)?.slug ?? null };
+  }
+  return pressOffice();
+}
+
+/** The firm's press office, from firm settings. */
+export function pressOffice(): { name: string; title: string; email: string; phone: string; slug: string | null } {
+  const c = site.press;
+  return { name: c.contactName, title: c.contactTitle, email: c.contactEmail, phone: c.contactPhone, slug: null };
 }
 
 // ─── FAQs, pages, careers ───────────────────────────────────────────────────

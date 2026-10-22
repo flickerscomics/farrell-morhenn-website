@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { ArticleCard, PersonCard } from "@/components/cards";
+import { ArticleCard, PersonCard, PressCard } from "@/components/cards";
 import { HeroArt } from "@/components/hero-art";
 import { Markdown, OfficeHoursTable } from "@/components/ui";
-import { absoluteUrl, articles, featuredPracticeAreas, openVacancies, page, people, site } from "@/lib/content";
+import { absoluteUrl, articles, currentPressReleases, featuredPracticeAreas, openVacancies, page, people, pressListItem, site } from "@/lib/content";
 import { timeZoneName } from "@/lib/time";
 
 export const metadata = { alternates: { canonical: absoluteUrl("/") } };
@@ -13,6 +13,7 @@ export default function HomePage() {
   const areas = featuredPracticeAreas(6);
   const featured = people().filter((p) => p.isFeatured).slice(0, 4);
   const latest = articles().slice(0, 3);
+  const releases = currentPressReleases().slice(0, 3);
   const vacancyCount = openVacancies().length;
 
   return (
@@ -140,6 +141,27 @@ export default function HomePage() {
             <div className="grid grid-3">
               {latest.map((a) => (
                 <ArticleCard key={a.slug} article={a} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {show.showPress && releases.length > 0 && (
+        <section className="section-tight press-strip">
+          <div className="container">
+            <div className="section-head">
+              <div>
+                <p className="eyebrow">Press office</p>
+                <h2>Latest press releases</h2>
+              </div>
+              <Link href="/press" className="link-arrow">
+                All press releases
+              </Link>
+            </div>
+            <div className="grid grid-3">
+              {releases.map((r) => (
+                <PressCard key={r.slug} release={pressListItem(r)} />
               ))}
             </div>
           </div>

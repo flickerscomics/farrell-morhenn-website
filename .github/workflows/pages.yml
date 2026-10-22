@@ -1,4 +1,5 @@
-# Builds the static site and publishes it to GitHub Pages on every push to main.
+# Builds the static site and publishes it to GitHub Pages on every push to main,
+# and once an hour so scheduled press releases and articles appear on time.
 # One-time setup: Settings → Pages → Build and deployment → Source: "GitHub Actions".
 name: Deploy to GitHub Pages
 
@@ -6,6 +7,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"
 
 permissions:
   contents: read

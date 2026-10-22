@@ -119,6 +119,9 @@ content:
           - name: showContact
             label: Office & hours
             type: boolean
+          - name: showPress
+            label: Latest press releases
+            type: boolean
       - name: navigation
         label: Main menu
         type: object
@@ -144,6 +147,28 @@ content:
       - name: footerText
         label: Footer notice
         type: text
+      - name: press
+        label: Press office (media contact and "About the firm" paragraph for press releases)
+        type: object
+        fields:
+          - name: contactName
+            label: Media contact name
+            type: string
+          - name: contactTitle
+            label: Media contact title
+            type: string
+          - name: contactEmail
+            label: Media contact email
+            type: string
+          - name: contactPhone
+            label: Media contact telephone
+            type: string
+          - name: defaultLocation
+            label: Default dateline place (e.g. LOS SANTOS, San Andreas)
+            type: string
+          - name: boilerplate
+            label: '"About the firm" paragraph printed at the end of each release (BBCode)'
+            type: text
 
   # ─── People ────────────────────────────────────────────────────────────────
   - name: people
@@ -386,6 +411,167 @@ content:
         options:
           format: markdown
           media: false
+
+  # ─── Press releases ────────────────────────────────────────────────────────
+  # The body uses BBCode: [b]bold[/b], [i]italic[/i], [u]underline[/u],
+  # [h2]heading[/h2], [url=https://…]link[/url], [quote=Name]…[/quote],
+  # [list][*]item[/list], [center]…[/center], [color=gold]…[/color],
+  # [size=large]…[/size], [img=description]/images/press/photo.jpg[/img],
+  # [table][tr][td]…[/td][/tr][/table] and [hr]. The full list is in the README.
+  - name: press
+    label: Press releases
+    type: collection
+    path: content/press
+    format: yaml-frontmatter
+    view:
+      primary: title
+      fields: [title, status, releaseDate]
+      sort: releaseDate
+      order: desc
+    fields:
+      - name: title
+        label: Headline
+        type: string
+        required: true
+      - name: slug
+        label: Web address (lowercase-with-hyphens)
+        type: string
+        required: true
+      - name: subtitle
+        label: Subheadline (optional)
+        type: string
+      - name: status
+        label: Status
+        type: select
+        default: DRAFT
+        options:
+          values:
+            - { name: DRAFT, label: Draft (hidden) }
+            - { name: PUBLISHED, label: Published }
+            - { name: ARCHIVED, label: "Archived (removed from the list; page stays online with an archive notice)" }
+      - name: releaseDate
+        label: Release date (a future date schedules the release)
+        type: date
+        required: true
+        options:
+          format: yyyy-MM-dd
+      - name: releaseTime
+        label: Release time, firm time zone (e.g. 09:00; blank = midnight)
+        type: string
+      - name: releaseLine
+        label: Line above the headline (e.g. For immediate release, Statement)
+        type: string
+        default: For immediate release
+      - name: location
+        label: Dateline place (blank = default from Firm settings)
+        type: string
+      - name: category
+        label: Category
+        type: select
+        options:
+          values:
+            - { name: firm-announcements, label: Firm announcements }
+            - { name: appointments, label: Appointments }
+            - { name: statements, label: Statements }
+            - { name: community, label: Community }
+            - { name: events, label: Events }
+            - { name: case-outcomes, label: Case outcomes }
+      - name: tags
+        label: Tags
+        type: string
+        list: true
+      - name: summary
+        label: Summary (shown in lists, the feed and link previews)
+        type: text
+        required: true
+      - name: body
+        label: Release text (BBCode)
+        type: text
+      - name: isFeatured
+        label: Featured (highlighted at the top of the press page)
+        type: boolean
+      - name: pullQuote
+        label: Pull quote (optional, shown beside the release)
+        type: text
+      - name: pullQuoteBy
+        label: Pull quote attribution (e.g. Jane Doe, Senior Attorney)
+        type: string
+      - name: image
+        label: Header image (optional)
+        type: image
+        options:
+          path: public/images/press
+      - name: imageAlt
+        label: Image description (for screen readers)
+        type: string
+      - name: imageCaption
+        label: Image caption
+        type: string
+      - name: attachments
+        label: Downloads (PDF or image)
+        type: object
+        list: true
+        fields:
+          - name: label
+            label: Link text
+            type: string
+          - name: file
+            label: File
+            type: file
+            options:
+              path: public/images/press
+              extensions: [pdf, jpg, jpeg, png, webp]
+      - name: mediaContact
+        label: Media contact (blank = the press office from Firm settings)
+        type: reference
+        options:
+          collection: people
+          search: fullName
+          value: "{fields.slug}"
+          label: "{fields.fullName}"
+      - name: people
+        label: People mentioned
+        type: reference
+        options:
+          collection: people
+          multiple: true
+          search: fullName
+          value: "{fields.slug}"
+          label: "{fields.fullName}"
+      - name: practiceAreas
+        label: Related practice areas
+        type: reference
+        options:
+          collection: practice-areas
+          multiple: true
+          search: name
+          value: "{fields.slug}"
+          label: "{fields.name}"
+      - name: related
+        label: Related press releases (blank = chosen automatically)
+        type: reference
+        options:
+          collection: press
+          multiple: true
+          search: title
+          value: "{fields.slug}"
+          label: "{fields.title}"
+      - name: updatedOn
+        label: Updated on (optional; shows an update notice)
+        type: date
+        default: ""
+        options:
+          format: yyyy-MM-dd
+      - name: updateNote
+        label: Update or correction note
+        type: text
+      - name: showBoilerplate
+        label: Show the "About the firm" paragraph
+        type: boolean
+        default: true
+      - name: boilerplate
+        label: Custom "About the firm" paragraph for this release only (BBCode, optional)
+        type: text
 
   # ─── Careers ───────────────────────────────────────────────────────────────
   - name: careers
@@ -802,6 +988,23 @@ content:
               - name: description
                 label: Description
                 type: text
+      - name: press-categories
+        label: Press release categories
+        type: file
+        path: content/press-categories.yml
+        format: yaml
+        fields:
+          - name: categories
+            label: Categories
+            type: object
+            list: true
+            fields:
+              - name: slug
+                label: Code (lowercase-with-hyphens)
+                type: string
+              - name: name
+                label: Name
+                type: string
       - name: article-categories
         label: Article categories
         type: file

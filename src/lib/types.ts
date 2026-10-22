@@ -80,6 +80,68 @@ export type Article = {
   authorName?: string | null;
 };
 
+/** DRAFT is hidden. ARCHIVED stays online at its address but leaves the press list, homepage and feed. */
+export type PressStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
+
+export type PressAttachment = { label: string; file: string };
+
+export type PressRelease = {
+  slug: string;
+  title: string;
+  subtitle: string;
+  /** Category slug. */
+  category: string;
+  tags: string[];
+  status: PressStatus;
+  /** YYYY-MM-DD and HH:MM in the firm's time zone. The release stays off the site until then. */
+  releaseDate: string;
+  releaseTime: string;
+  /** The moment it goes public, as an ISO timestamp. */
+  releaseAt: string;
+  /** Line printed above the title, e.g. "For immediate release". */
+  releaseLine: string;
+  /** Dateline place, e.g. "LOS SANTOS, San Andreas". */
+  location: string;
+  summary: string;
+  /** BBCode. */
+  body: string;
+  updatedOn?: string;
+  updateNote: string;
+  pullQuote: string;
+  pullQuoteBy: string;
+  image?: string;
+  imageAlt: string;
+  imageCaption: string;
+  attachments: PressAttachment[];
+  /** Person slug for the media contact; empty means the firm's press office in settings. */
+  mediaContact: string;
+  /** Person slugs. */
+  people: string[];
+  /** Practice area slugs. */
+  practiceAreas: string[];
+  /** Press release slugs. */
+  related: string[];
+  isFeatured: boolean;
+  showBoilerplate: boolean;
+  /** BBCode replacing the standard "About" paragraph for this release only. */
+  boilerplate: string;
+};
+
+/** What the press list needs about a release (kept small, as it is sent to the browser). */
+export type PressListItem = {
+  slug: string;
+  title: string;
+  subtitle: string;
+  summary: string;
+  category: string;
+  categoryName: string;
+  tags: string[];
+  releaseDate: string;
+  isFeatured: boolean;
+  /** Title, summary and body as plain text, for searching. */
+  searchText: string;
+};
+
 export type Faq = { category: string; question: string; answer: string; practiceArea?: string };
 
 export type Vacancy = {
@@ -139,6 +201,16 @@ export type Settings = {
     showArticles: boolean;
     showCareers: boolean;
     showContact: boolean;
+    showPress: boolean;
+  };
+  press: {
+    contactName: string;
+    contactTitle: string;
+    contactEmail: string;
+    contactPhone: string;
+    /** BBCode "About the firm" paragraph printed at the end of every release. */
+    boilerplate: string;
+    defaultLocation: string;
   };
   confidentialityNotice: string;
 };
