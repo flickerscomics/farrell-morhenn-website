@@ -77,6 +77,8 @@ Anything else, including HTML, is shown as plain text. Links may only go to web 
 
 ## Publishing on GitHub Pages
 
+The live site is **https://farrell-morhenn.com**. The domain's DNS is managed in Cloudflare: four `A` records for `@` point to GitHub Pages (185.199.108.153, .109.153, .110.153 and .111.153), and a `CNAME` record for `www` points to `flickerscomics.github.io`. The domain is also set under **Settings → Pages → Custom domain**.
+
 Publishing is automatic: every change to `main` runs the **Deploy to GitHub Pages** workflow, which checks, builds and publishes the site. It also runs every hour so scheduled releases and articles appear on time. (GitHub switches off hourly runs in a repository with no activity for 60 days. If that happens, re-enable the workflow from the repository's **Actions** tab.) Pages must be set to **Settings → Pages → Source: GitHub Actions**.
 
 **Renaming the repository** needs no code changes. The address simply becomes `https://<owner>.github.io/<new-name>/`. Custom domains (Settings → Pages → Custom domain) work too.

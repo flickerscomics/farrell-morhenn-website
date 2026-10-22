@@ -36,10 +36,12 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - name: Build static site
-        run: npm run build
+        # Links in the sitemap and feed always use https: the site is served over
+        # https (by Cloudflare) even before GitHub's own certificate is ready.
+        run: SITE_URL="https://${BASE_URL#*://}" npm run build
         env:
           PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}
-          SITE_URL: ${{ steps.pages.outputs.base_url }}
+          BASE_URL: ${{ steps.pages.outputs.base_url }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: out
