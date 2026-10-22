@@ -19,6 +19,12 @@ test("email links go to the firm's online message page", async ({ page }) => {
   await expect(page.locator('a[href^="mailto:"]')).toHaveCount(0);
 });
 
+test("the staff area is hidden from search engines and explains when its service is missing", async ({ page }) => {
+  await page.goto("admin/");
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex, nofollow");
+  await expect(page.getByText("The admin service isn't available here.")).toBeVisible();
+});
+
 test("main navigation reaches every section under the base path", async ({ page }) => {
   await page.goto("./");
   const nav = page.getByRole("navigation", { name: "Main" });

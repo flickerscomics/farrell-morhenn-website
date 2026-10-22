@@ -1939,3 +1939,169 @@ dialog.confirm-dialog h2 {
     margin-top: 2rem;
   }
 }
+
+/* ─── Staff admin area (/admin) ─────────────────────────────────────────── */
+
+.admin-shell {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
+}
+@media (max-width: 860px) {
+  .admin-shell {
+    grid-template-columns: 1fr;
+  }
+}
+.admin-nav {
+  border: 1px solid var(--line, #dfe3ea);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  background: var(--paper, #fff);
+  font-size: 0.95rem;
+}
+.admin-nav ul {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+}
+.admin-nav li + li {
+  margin-top: 0.3rem;
+}
+.admin-nav a {
+  text-decoration: none;
+}
+.admin-nav a:hover,
+.admin-nav a:focus-visible {
+  text-decoration: underline;
+}
+.admin-me {
+  display: grid;
+  margin: 0 0 1rem;
+}
+.admin-nav-group {
+  margin: 0.75rem 0 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3, #667);
+}
+.linkish {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--brand-primary);
+  cursor: pointer;
+}
+.linkish:hover {
+  text-decoration: underline;
+}
+.admin-main {
+  min-width: 0;
+}
+.admin-narrow {
+  max-width: 30rem;
+  margin: 0 auto;
+}
+.admin-check {
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
+  font-weight: 500;
+}
+.admin-check input {
+  margin-top: 0.3rem;
+}
+.admin-choices {
+  display: grid;
+  gap: 0.35rem;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  max-height: 16rem;
+  overflow: auto;
+  padding: 0.5rem;
+  border: 1px solid var(--line, #dfe3ea);
+  border-radius: 8px;
+}
+.admin-list {
+  display: grid;
+  gap: 0.6rem;
+}
+.admin-list-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+.admin-list-item {
+  display: grid;
+  gap: 0.6rem;
+}
+.admin-list-tools {
+  gap: 0.25rem;
+}
+.admin-object {
+  padding: 1rem;
+  border: 1px solid var(--line, #dfe3ea);
+  border-radius: 8px;
+}
+.admin-preview {
+  max-height: 28rem;
+  overflow: auto;
+}
+.admin-upload-preview {
+  max-width: 12rem;
+  max-height: 12rem;
+  border-radius: 8px;
+  object-fit: cover;
+}
+.admin-perms {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+.admin-diff {
+  table-layout: fixed;
+  width: 100%;
+}
+.admin-diff thead th:first-child {
+  width: 11rem;
+}
+.admin-diff th[scope="row"] {
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+.admin-diff td {
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+.admin-diff-text {
+  font-size: 0.92rem;
+}
+.admin details > summary {
+  cursor: pointer;
+  list-style: revert;
+}
+.admin details[open] > summary {
+  margin-bottom: 1rem;
+}
+.admin-actions {
+  position: sticky;
+  bottom: 0;
+  background: var(--paper, #fff);
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--line, #dfe3ea);
+}
+.admin .table .select-sm {
+  min-width: 10rem;
+}
+.admin .input:disabled,
+.admin .textarea:disabled,
+.admin .select:disabled {
+  background: var(--line-soft);
+  color: var(--ink-3);
+  cursor: not-allowed;
+}

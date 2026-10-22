@@ -85,9 +85,32 @@ The live site is **https://farrell-morhenn.com**, built and hosted by **Cloudfla
 - **DNS** is in Cloudflare: `farrell-morhenn.com` and `www` are proxied `CNAME` records pointing to `farrell-morhenn.pages.dev`, and Cloudflare manages the certificates.
 - The old GitHub Pages address (`flickerscomics.github.io/farrell-morhenn-website/`) still redirects to the domain. The site no longer deploys there.
 
-## What a static site can't do
+## Staff admin area (/admin)
 
-The site is static (Cloudflare Pages only serves files), so it has no online forms, logins, admin area or client portal. Staff logins and an admin area are planned; see [`docs/ROADMAP.md`](docs/ROADMAP.md). Visitors contact the firm by phone, email or in person, as the Contact page explains. A full database-backed version (online forms, admin dashboard, matter management, client portal) was built earlier and is preserved in this repository's history at commit `2fa7790`. It needs a Node.js host with PostgreSQL rather than a static host.
+Staff sign in at **https://farrell-morhenn.com/admin**. It runs on Cloudflare Pages Functions (`functions/api/[[path]].ts` → `src/server/`), with accounts in a Cloudflare D1 database. Saving commits to this repository through a GitHub App installed only on it, with the repository owner as author, and Cloudflare republishes the site as usual.
+
+- **Accounts:** no public sign-up. An admin invites someone under **Staff accounts** and sends them the single-use link (valid 48 hours); they choose their own password. There is no email sending, so an admin also makes password reset links (valid 24 hours). Disabling an account, changing its role, or marking its profile Departed or Inactive signs the person out.
+- **Roles:** built-in **Admin**, **Press editor** and **Staff member**, plus any custom roles, each with a permission checklist. The Admin role always has every permission and can't be changed or deleted. At least one active admin always remains, and nobody can grant a permission they don't hold.
+- **Profiles:** staff linked to a profile edit their own biography, photo, languages, qualifications and contact details. Their changes wait in **Approvals** until an admin approves them (nobody approves their own). Names, job titles, web addresses, status and directory settings need the "change profile details" permission. Biographies use BBCode, like press releases.
+- **Everything else** Pages CMS edits can be edited here too: the forms are built from `.pages.yml`, so a field added there appears in both editors.
+- **Security:** PBKDF2-SHA256 password hashes, 8-hour sessions in a `__Host-` cookie (Secure, HttpOnly, SameSite=Strict), CSRF tokens and same-origin checks on every change, login rate limits and a 15-minute lockout after 5 wrong passwords, upload checks (real JPEG/PNG/WebP/GIF/PDF content, 3 MB), strict security headers on `/admin` (`public/_headers`), and an **Activity log** of sign-ins and changes.
+
+### Setting it up (once)
+
+In Cloudflare, under **Workers & Pages → farrell-morhenn → Settings**:
+
+1. **Bindings:** a D1 database bound as `DB`. The tables are created automatically on first use.
+2. **Variables and Secrets** (type *Secret*): `GITHUB_APP_ID`, `GITHUB_APP_INSTALLATION_ID`, `GITHUB_APP_PRIVATE_KEY` (the whole `.pem` file), and `ADMIN_SETUP_CODE` (a long phrase of your choice, at least 12 characters).
+3. Redeploy (**Deployments → … → Retry deployment**, or push any change), because new secrets apply to the next deployment.
+4. Open **/admin**, enter the setup code and create the first admin account. Setup switches itself off once an account exists, and you can then delete `ADMIN_SETUP_CODE`.
+
+Optional settings: `GITHUB_REPO` (default `flickerscomics/farrell-morhenn-website`), `GITHUB_BRANCH` (default `main`), and `PASSWORD_HASH_ITERATIONS` (default and maximum 100000). On the Workers **free plan** a request gets about 10 ms of CPU time. If signing in fails with a Cloudflare "exceeded resource limits" (1102) error, either lower `PASSWORD_HASH_ITERATIONS` (minimum 10000) or move to the Workers Paid plan.
+
+Every save is a commit, and every commit is a Cloudflare build (500 a month on the free plan), so make several changes before saving where you can.
+
+## What the site doesn't do
+
+There are no public online forms or client portal. Visitors contact the firm by phone, through the online message link, or in person, as the Contact page explains. A full database-backed version (online forms, matter management, client portal) was built earlier and is preserved in this repository's history at commit `2fa7790`. It needs a Node.js host with PostgreSQL.
 
 ## For developers
 
@@ -108,6 +131,9 @@ npm run preview
 
 ```
 content/              Editable content (YAML, and Markdown with a YAML header)
+functions/api/        Cloudflare Pages Functions entry for the admin API
+src/server/           Admin API: accounts, roles, sessions, approvals, GitHub commits
+src/components/admin/ Admin screens (/admin)
 tests/fixtures/       Fixed sample content the tests run against (set with CONTENT_DIR), so the live site can change freely
 .pages.yml            Pages CMS editing forms
 public/images/        Uploaded images

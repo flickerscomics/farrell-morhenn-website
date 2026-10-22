@@ -45,9 +45,9 @@ background: >-
   West Coast Insurance Group - Claims Adjuster, 1991-1995
 notableCases: "[26GJCR00706] People of the State of San Andreas v. Stanley Watts"
 ---
-# Richard "Dick" Sullivan
+[h2]Richard "Dick" Sullivan[/h2]
 
-## Senior Associate Attorney
+[h3]Senior Associate Attorney[/h3]
 
 Dick Sullivan is a Senior Associate Attorney at Farrell-Morhenn & Associates. He brings more than three decades of experience in investigations, regulatory compliance, and financial law. He is known for his thorough preparation, sharp eye for detail, and direct approach to advocacy.
 

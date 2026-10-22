@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArticleCard } from "@/components/cards";
+import { BBCode } from "@/components/bbcode";
 import { Markdown, PageHero, Portrait } from "@/components/ui";
 import { absoluteUrl, articles, isBookable, people, person, practiceArea, site } from "@/lib/content";
 import { EmailLink } from "@/components/email-link";
@@ -109,7 +110,7 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
             </dl>
           </aside>
           <div>
-            <Markdown>{p.biography || p.shortBio}</Markdown>
+            <BBCode>{p.biography || p.shortBio}</BBCode>
             {p.background && (
               <>
                 <h2 style={{ marginTop: "2.5rem" }}>Background</h2>

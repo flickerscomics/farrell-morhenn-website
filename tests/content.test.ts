@@ -57,8 +57,8 @@ describe("content", () => {
   it("reads like a real firm's website (no out-of-character wording)", () => {
     const banned = /in[- ]character|out[- ]of[- ]character|\bOOC\b|roleplay|role-play|fictional|GTA|real[- ]world|in-game|forum private message|Calder|Whitmore/i;
     for (const file of filesUnder(path.join(process.cwd(), "content"))) {
-      // Web addresses aren't shown as wording, so they may contain anything.
-      const text = fs.readFileSync(file, "utf8").replace(/https?:\/\/\S+/g, "");
+      // Web addresses (with or without https://) aren't wording, so they may contain anything.
+      const text = fs.readFileSync(file, "utf8").replace(/https?:\/\/\S+/g, "").replace(/\b[\w-]+(?:\.[\w-]+)+\/[^\s\]]*/g, "");
       expect(text.match(banned)?.[0], path.relative(process.cwd(), file)).toBeUndefined();
     }
   });

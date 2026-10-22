@@ -1,6 +1,7 @@
 # Pages CMS configuration (https://pagescms.org). Defines the editing forms
-# for the files in /content. Saving in Pages CMS commits to the repository and
-# the "Deploy to GitHub Pages" workflow republishes the site.
+# for the files in /content. The staff admin area (/admin) builds its forms
+# from this file too, so a field added here appears in both editors. Saving
+# commits to the repository and Cloudflare Pages republishes the site.
 
 media:
   input: public/images
@@ -280,11 +281,8 @@ content:
         label: Recognition and activities
         type: text
       - name: body
-        label: Full biography
-        type: rich-text
-        options:
-          format: markdown
-          media: false
+        label: Full biography (BBCode, e.g. [b]bold[/b], [i]italic[/i], [list][*]item[/list])
+        type: text
 
   # ─── Practice areas ────────────────────────────────────────────────────────
   - name: practice-areas
