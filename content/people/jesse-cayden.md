@@ -17,7 +17,7 @@ languages:
   - English
 email: j.cayden@farrellmorhennlaw.com
 phone: ""
-joinedYear: 2020
+joinedYear: 2025
 qualifications: ""
 barAdmissions: State Bar of San Andreas (admitted November 2025)
 background: ""
